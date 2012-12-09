@@ -58,10 +58,11 @@
   <Import Project="$(SPOCLIENT)\Solutions\Netduino\DeviceCode\SecretLabs_NETMF_Hardware\SecretLabs.NETMF.Hardware.featureproj" />
   <Import Project="$(SPOCLIENT)\Solutions\Netduino\DeviceCode\SecretLabs_NETMF_Diagnostics\SecretLabs.NETMF.Diagnostics.featureproj" />
   <Import Project="$(SPOCLIENT)\Solutions\Netduino\DeviceCode\SecretLabs_NETMF_IO\SecretLabs.NETMF.IO.featureproj" />
+  <Import Project="$(SPOCLIENT)\Solutions\Netduino\Interop\CW_NETMF_OneWire\DeviceCode\CW.NETMF.OneWire.featureproj" />
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Interop.Settings" />
-  <ItemGroup>        
-     <DriverLibs Include="SecretLabs_NETMF_Hardware.$(LIB_EXT)" />
-     <RequiredProjects Include="$(SPOCLIENT)\Solutions\Netduino\DeviceCode\SecretLabs_NETMF_Hardware\dotNetMF.proj" />
+  <ItemGroup>
+    <DriverLibs Include="SecretLabs_NETMF_Hardware.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\Solutions\Netduino\DeviceCode\SecretLabs_NETMF_Hardware\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>        
      <DriverLibs Include="SecretLabs_NETMF_Diagnostics.$(LIB_EXT)" />
@@ -414,6 +415,10 @@
   <ItemGroup>
     <DriverLibs Include="FileSystem_Config_PAL_Netduino.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\Solutions\Netduino\DeviceCode\FileSystem_Config_PAL\dotNetMF.proj" />
+  </ItemGroup>
+  <ItemGroup>
+    <DriverLibs Include="CW_NETMF_OneWire.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\Solutions\Netduino\Interop\CW_NETMF_OneWire\DeviceCode\dotnetmf.proj" />
   </ItemGroup>
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Targets" />
 </Project>

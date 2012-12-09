@@ -59,6 +59,7 @@
   <Import Project="$(SPOCLIENT)\Framework\Features\Usb.featureproj" />
   <Import Project="$(SPOCLIENT)\Solutions\NetduinoPlus\DeviceCode\SecretLabs_NETMF_Hardware\SecretLabs.NETMF.Hardware.featureproj" />
   <Import Project="$(SPOCLIENT)\Solutions\NetduinoPlus\DeviceCode\SecretLabs_NETMF_Diagnostics\SecretLabs.NETMF.Diagnostics.featureproj" />
+  <Import Project="$(SPOCLIENT)\Solutions\NetduinoPlus\Interop\CW_NETMF_OneWire\DeviceCode\CW.NETMF.OneWire.featureproj" />
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Interop.Settings" />
   <ItemGroup>        
      <DriverLibs Include="SecretLabs_NETMF_Hardware.$(LIB_EXT)" />
@@ -507,6 +508,10 @@
   <ItemGroup>
     <DriverLibs Include="FS_FAT.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\FS\FAT\dotNetMF.proj" />
+  </ItemGroup>
+  <ItemGroup>
+    <DriverLibs Include="CW_NETMF_OneWire.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\Solutions\NetduinoPlus\Interop\CW_NETMF_OneWire\DeviceCode\dotnetmf.proj" />
   </ItemGroup>
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Targets" />
 </Project>

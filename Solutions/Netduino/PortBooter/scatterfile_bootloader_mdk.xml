@@ -10,9 +10,6 @@
     <Set Name="Stack_Top"       Value="0x0001FFF8"/>
 
 
-    <!-- we start at 0x10008000 since PortBooter lives at 0x10000000 -->
-    <!-- the address and sizes for both load regions (LR_*) are chosen to start and completely fill a flash partition in the 28F320W18 flash chip -->
-
     <LoadRegion Name="LR_%TARGETLOCATION%" Base="0x00000000" Options="ABSOLUTE" Size="0x60000">
 
         <ExecRegion Name="ER_%TARGETLOCATION%" Base="0x00000000" Options="FIXED" Size="">
@@ -20,8 +17,6 @@
             <FileMapping Name="FirstEntryMinimal.obj"   Options="(+RO)" /> <!-- the entry pointer section goes into this region -->
 
         </ExecRegion>
-
-        <!-- skip vector area -->
 
         <ExecRegion Name="ER_RAM_RO" Base="+0" Options="ABSOLUTE" Size="">
 

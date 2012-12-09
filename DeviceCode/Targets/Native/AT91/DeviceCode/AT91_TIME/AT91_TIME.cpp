@@ -37,7 +37,7 @@ BOOL AT91_TIME_Driver::Initialize()
     g_AT91_TIME_Driver.m_lastRead    = 0;
     g_AT91_TIME_Driver.m_nextCompare = (UINT64) AT91_TIMER_Driver::c_MaxTimerValue;
 
-    if(!AT91_TIMER_Driver::Initialize( AT91_TIMER_Driver::c_SystemTimer, TRUE, AT91_TC::TC_CLKS_TIMER_DIV5_CLOCK, AT91_TIME_Driver::ISR, NULL ))
+    if(!AT91_TIMER_Driver::Initialize( AT91_TIMER_Driver::c_SystemTimer, TRUE, AT91_TC::TC_CLKS_TIMER_DIV4_CLOCK, AT91_TIME_Driver::ISR, NULL ))
         return FALSE;
 
     AT91_TIMER_Driver::SetCompare( AT91_TIMER_Driver::c_SystemTimer, AT91_TIMER_Driver::c_MaxTimerValue );
@@ -190,7 +190,11 @@ void __section(SectionForFlashOperations) AT91_TIME_Driver::Sleep_uSec_Loop( UIN
     // overhead cycles required to call this subroutine.
     int iterations = (int)uSec - 14;      // Subtract off call & calculation overhead
 
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus) || defined(PLATFORM_ARM_NetduinoMini)
+    CYCLE_DELAY_LOOP(iterations);
+#else
     CYCLE_DELAY_LOOP2(iterations);
+#endif
 }
 
 #pragma arm section code

@@ -53,10 +53,17 @@
 #define SYSTEM_PERIPHERAL_CLOCK_HZ      SYSTEM_CYCLE_CLOCK_HZ
 #define SYSTEM_CLOCK_HZ                 48000000
 #define CLOCK_COMMON_FACTOR             1000000
-//TClk 5 ( Select MCK/1024)
-#define SLOW_CLOCKS_PER_SECOND          46875
-#define SLOW_CLOCKS_TEN_MHZ_GCD         15625
-#define SLOW_CLOCKS_MILLISECOND_GCD     125
+////TClk 5 ( Select MCK/1024)
+//#define SLOW_CLOCKS_PER_SECOND          46875
+//#define SLOW_CLOCKS_TEN_MHZ_GCD         15625
+//#define SLOW_CLOCKS_MILLISECOND_GCD     125
+
+// FIXME: #define for TC_CLKS_TIMER_DIV5_CLOCK in AT91_TIME_Driver::Initialize()
+//TClk 4 ( Select MCK/128)
+#define SLOW_CLOCKS_PER_SECOND          375000
+#define SLOW_CLOCKS_TEN_MHZ_GCD         125000
+#define SLOW_CLOCKS_MILLISECOND_GCD     1000
+
 
 #define FLASH_MEMORY_Base   0x00100000
 #define FLASH_MEMORY_Size   0x00080000

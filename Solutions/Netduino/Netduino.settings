@@ -14,7 +14,7 @@
     <PLATFORM_HEAP_SIZE_THRESHOLD_UPPER>15360</PLATFORM_HEAP_SIZE_THRESHOLD_UPPER>
   </PropertyGroup>
   <PropertyGroup>
-    <OEMSystemInfoString>Netduino (v4.1.1.0 b1) by Secret Labs LLC</OEMSystemInfoString>
+    <OEMSystemInfoString>Netduino (v4.1.1.0 b1) + OneWire by CW</OEMSystemInfoString>
   </PropertyGroup>
   <ItemGroup>
     <IncludePaths Include="Solutions\Netduino" />
