@@ -1,3 +1,5 @@
+// Portions Copyright (c) Secret Labs LLC.
+
 using System;
 using System.Collections;
 using System.Threading;
@@ -263,6 +265,7 @@ namespace System.IO.Ports
         {
             if (m_callbacksDataEvent != null)
             {
+                InternalSetDataEventRaised(); // EDIT: added by Secret Labs
                 m_callbacksDataEvent(this, new SerialDataReceivedEventArgs((SerialData)evt));
             }
         }
@@ -410,6 +413,9 @@ namespace System.IO.Ports
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         extern private void DiscardBuffer(bool fInput);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        extern private void InternalSetDataEventRaised();
     }
 }
 

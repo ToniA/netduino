@@ -155,7 +155,8 @@
 /* Define IP_FORWARD to 1 if you wish to have the ability to forward
    IP packets across network interfaces. If you are going to run lwIP
    on a device with only one network interface, define this to 0. */
-#define IP_FORWARD              1
+//#define IP_FORWARD              1
+#define IP_FORWARD              0
 
 /* If defined to 1, IP options are allowed (but not parsed). If
    defined to 0, all packets with IP options are dropped. */
@@ -176,7 +177,8 @@
 
 /* 1 if you want to do an ARP check on the offered address
    (recommended). */
-#define DHCP_DOES_ARP_CHECK     0
+//#define DHCP_DOES_ARP_CHECK     0
+#define DHCP_DOES_ARP_CHECK     1
 
 /* ---------- UDP options ---------- */
 #define LWIP_UDP                1
@@ -197,8 +199,8 @@
 #define LWIP_PROVIDE_ERRNO      1
 
 /* ---------- SNMP options ---------- */
-#define LWIP_SNMP               1 /*LwIP 1.2.0*/
-#define LWIP_IGMP               1 /*LwIP 1.2.0*/
+#define LWIP_SNMP               0 /*LwIP 1.2.0*/
+#define LWIP_IGMP               0 /*LwIP 1.2.0*/
 
 // thread priorities are in VDK terms - 1 is highest, 30 is lowest
 #define TCPIP_THREAD_PRIO       5

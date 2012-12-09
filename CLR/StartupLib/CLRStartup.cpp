@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) Microsoft Corporation.  All rights reserved.
+// Portions Copyright (c) Secret Labs LLC.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "CLRStartup.h"
@@ -634,6 +635,19 @@ void ClrStartup( CLR_SETTINGS params )
             {
 #if !defined(BUILD_RTM)
                 CLR_Debug::Printf( "Ready.\r\n" );
+#endif
+
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus)
+        // turn off LED when TinyCLR has booted
+        AT91_GPIO_Driver::EnableOutputPin(AT91_GPIO_Driver::PB23, FALSE); // ONBOARD_LED
+
+        // enable AD4/AD5 as I2C TWD/TWCK
+        AT91_GPIO_Driver::EnableOutputPin(AT91_GPIO_Driver::PA14, FALSE); // MUX1: AD4 should default to I2C TWD
+        AT91_GPIO_Driver::EnableOutputPin(AT91_GPIO_Driver::PA15, FALSE); // MUX2: AD5 should default to I2C TWCK
+	    // enable SW1 to act as a RESET button by default
+        AT91_GPIO_Driver::EnableOutputPin(AT91_GPIO_Driver::PA30, FALSE); // /SW1_CTRL_OF_RESET: SW1 should default to /NRST
+	    // enable internal AREF by default
+		AT91_GPIO_Driver::EnableOutputPin(AT91_GPIO_Driver::PB24, TRUE);  // AREF_SOURCE_CTRL: use onboard analog reference by default
 #endif
 
 #if defined(PLATFORM_WINDOWS)

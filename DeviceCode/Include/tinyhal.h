@@ -471,14 +471,14 @@ typedef void (*LOGGING_CALLBACK)(LPCSTR text);
 
 void hal_fprintf_SetLoggingCallback( LOGGING_CALLBACK fpn );
 
-extern "C"
+extern "C"
 {
 void lcd_printf( const char* format, ... );
 }
 
 #else
 
-extern "C"
+extern "C"
 {
 __inline void lcd_printf( const char* format, ... ) {}
 }
@@ -972,7 +972,7 @@ public:
 
     T* operator[](int index)
     {
-        if(index < 0 || index > NumberOfElements()) return NULL;
+        if(index < 0 || index >= NumberOfElements()) return NULL;
 
         return &m_data[(m_reader + index) % ARRAYSIZE(m_data)];
     }
@@ -1055,7 +1055,7 @@ public:
 
     T* operator[](int index)
     {
-        if(index < 0 || index > NumberOfElements()) return NULL;
+        if(index < 0 || index >= NumberOfElements()) return NULL;
 
         return &m_data[(m_reader + index) % m_size];
     }

@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) Microsoft Corporation.  All rights reserved.
+// Portions Copyright (c) Secret Labs LLC.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -258,14 +259,26 @@ void CLR_RT_ExecutionEngine::ExecutionEngine_Cleanup()
 
     CLR_DBG_Debugger::DeleteInstance();
 #endif //#if defined(TINYCLR_ENABLE_SOURCELEVELDEBUGGING)
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus)
+CLR_Debug::Printf( "Cleaning up...\r\n" );
+#endif
 
 #if defined(TINYCLR_PROFILE_NEW)
     CLR_PRF_Profiler::DeleteInstance();
 #endif
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus)
+CLR_Debug::Printf( "Cleaning up...\r\n" );
+#endif
 
     CLR_Messaging::DeleteInstance();
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus)
+CLR_Debug::Printf( "Cleaning up...\r\n" );
+#endif
 
     CLR_HW_Hardware::DeleteInstance();
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus)
+CLR_Debug::Printf( "Cleaning up...\r\n" );
+#endif
 
     m_finalizersAlive  .DblLinkedList_PushToCache();
     m_finalizersPending.DblLinkedList_PushToCache();
@@ -275,14 +288,35 @@ void CLR_RT_ExecutionEngine::ExecutionEngine_Cleanup()
     m_timerThread = NULL;
 
     AbortAllThreads  ( m_threadsReady   );
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus)
+CLR_Debug::Printf( "Cleaning up...\r\n" );
+#endif
     AbortAllThreads  ( m_threadsWaiting );
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus)
+CLR_Debug::Printf( "Cleaning up...\r\n" );
+#endif
 
     ReleaseAllThreads( m_threadsReady   );
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus)
+CLR_Debug::Printf( "Cleaning up...\r\n" );
+#endif
     ReleaseAllThreads( m_threadsWaiting );
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus)
+CLR_Debug::Printf( "Cleaning up...\r\n" );
+#endif
     ReleaseAllThreads( m_threadsZombie  );
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus)
+CLR_Debug::Printf( "Cleaning up...\r\n" );
+#endif
 
     g_CLR_RT_TypeSystem.TypeSystem_Cleanup();
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus)
+CLR_Debug::Printf( "Cleaning up...\r\n" );
+#endif
     g_CLR_RT_EventCache.EventCache_Cleanup();
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus)
+CLR_Debug::Printf( "Cleaning up...\r\n" );
+#endif
 
 #if !defined(TINYCLR_APPDOMAINS)
     m_globalLock = NULL;
@@ -294,6 +328,9 @@ void CLR_RT_ExecutionEngine::ExecutionEngine_Cleanup()
     CLR_RT_HeapBlock_EndPoint::HandlerMethod_CleanUp(); 
     CLR_RT_HeapBlock_NativeEventDispatcher::HandlerMethod_CleanUp();
     CLR_RT_HeapBlock_I2CXAction::HandlerMethod_CleanUp();
+#endif
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus)
+CLR_Debug::Printf( "Cleaning up...\r\n" );
 #endif
 
     m_interruptThread = NULL;    
@@ -1656,7 +1693,14 @@ CLR_RT_HeapBlock* CLR_RT_ExecutionEngine::ExtractHeapBlocks( CLR_RT_DblLinkedLis
 
         default: // Total failure...
 #if !defined(BUILD_RTM)
+#if defined(TINYCLR_TRACE_MEMORY_STATS) && (defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus) || defined(PLATFORM_ARM_NetduinoMini))
+    if(s_CLR_RT_fTrace_MemoryStats >= c_CLR_RT_Trace_Info)
+    {
+            CLR_Debug::Printf( "Could not allocate %d blocks, %d bytes. Compacting memory.\r\n\r\n", length, length * sizeof(CLR_RT_HeapBlock) );
+    }
+#else
             CLR_Debug::Printf( "Failed allocation for %d blocks, %d bytes\r\n\r\n", length, length * sizeof(CLR_RT_HeapBlock) );
+#endif
 #endif
             if(g_CLR_RT_GarbageCollector.m_freeBytes >= (length * sizeof(CLR_RT_HeapBlock)))
             {

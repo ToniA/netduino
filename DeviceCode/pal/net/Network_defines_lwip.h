@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) Microsoft Corporation.  All rights reserved.
+// Portions Copyright (c) Secret Labs LLC.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifndef _DRIVERS_NETWORK_DEFINES_LWIP_H_
@@ -83,12 +84,14 @@ a lot of data that needs to be copied, this should be set high. */
 #define MEMP_NUM_NETCONN__max               40
 
 /* PBUF_POOL_SIZE: the number of buffers in the pbuf pool. */
-#define PBUF_POOL_SIZE__min                 40
+//#define PBUF_POOL_SIZE__min                 40
+#define PBUF_POOL_SIZE__min                 16
 #define PBUF_POOL_SIZE__default             128
 #define PBUF_POOL_SIZE__max                 128
 
 /* PBUF_POOL_BUFSIZE: the size of each pbuf in the pbuf pool. */
-#define PBUF_POOL_BUFSIZE__min              512
+//#define PBUF_POOL_BUFSIZE__min              512
+#define PBUF_POOL_BUFSIZE__min              128
 #define PBUF_POOL_BUFSIZE__default          512
 #define PBUF_POOL_BUFSIZE__max              2048
 

@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) Microsoft Corporation.  All rights reserved.
+// Portions Copyright (c) Secret Labs LLC.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "TinyBooter.h"
@@ -19,6 +20,17 @@ Loader_Engine g_eng;
 //--//
 
 HAL_DECLARE_CUSTOM_HEAP( SimpleHeap_Allocate, SimpleHeap_Release, SimpleHeap_ReAllocate );
+
+//--//
+
+#if defined(PLATFORM_ARM_SAM7X_ANY)
+void EnableResetLine()
+{
+	    // enable NRST (the reset line)
+        volatile UINT32 *pResetMode = (volatile UINT32*)AT91C_BASE_RSTC_RMR;
+        *pResetMode |= (AT91C_RSTC__RESET_KEY | AT91C_RSTC_RMR__URSTEN); // enable NRST
+}
+#endif
 
 //--//
 
@@ -46,6 +58,9 @@ void ApplicationEntryPoint()
     }
     if(!enterBootMode)   
     {
+#if defined(PLATFORM_ARM_SAM7X_ANY)
+	    EnableResetLine();	
+#endif
         if(!g_eng.EnumerateAndLaunch())
         {
             timeout       = -1;
@@ -130,6 +145,9 @@ void ApplicationEntryPoint()
             else if((timeout != -1) && (HAL_Time_CurrentTicks()-ticksStart) > CPU_MillisecondsToTicks((UINT32)timeout))
             {
                 TinyBooter_OnStateChange( State_Timeout, NULL );
+#if defined(PLATFORM_ARM_SAM7X_ANY)
+			    EnableResetLine();
+#endif
                 g_eng.EnumerateAndLaunch();
             }
         } while(true);

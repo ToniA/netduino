@@ -64,7 +64,11 @@ UINT32 dm9161_lwip_FindValidPhy()
 BOOL dm9161_lwip_AutoNegotiate()
 {
     UINT32 retryCount;
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus)
+    UINT32 retryMax = 25000;    // At least 1, should not be 0
+#else
     UINT32 retryMax = 100000;    // At least 1, should not be 0
+#endif
     UINT32 value;
     UINT32 phyAnar;
     UINT32 phyAnalpar;
@@ -151,7 +155,7 @@ BOOL dm9161_lwip_AutoNegotiate()
               AT91_EMAC_LWIP_ReadPhy(g_phyAddress, DM9161_BMSR, &value, retryMax);
         if (!rc)
         {
-            debug_printf("Error: AutoNegociate failed\r\n");
+            debug_printf("Error: AutoNegotiate failed\r\n");
             goto AutoNegotiateExit;
         }
         // Done successfully
@@ -285,7 +289,7 @@ BOOL dm9161_lwip_GetLinkStatus(void)
 
     AT91_EMAC_LWIP_EnableMdio();
 
-    if (AT91_EMAC_LWIP_ReadPhy(g_phyAddress, DM9161_BMSR, &bmsr, retryMax) ||
+    if (AT91_EMAC_LWIP_ReadPhy(g_phyAddress, DM9161_BMSR, &bmsr, retryMax) ||
         AT91_EMAC_LWIP_ReadPhy(g_phyAddress, DM9161_BMSR, &bmsr, retryMax))
     {
         link_status = (bmsr & DM9161_LINK_STATUS);

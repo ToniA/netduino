@@ -3,6 +3,14 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include <tinyhal.h>
+#if defined(PLATFORM_ARM_Netduino)
+#include "..\..\Solutions\Netduino\DeviceCode\DeploymentTransport\DeploymentTransport.h"
+#elif defined(PLATFORM_ARM_NetduinoPlus)
+#include "..\..\Solutions\NetduinoPlus\DeviceCode\DeploymentTransport\DeploymentTransport.h"
+#elif defined(PLATFORM_ARM_NetduinoMini)
+#include "..\..\Solutions\NetduinoMini\DeviceCode\DeploymentTransport\DeploymentTransport.h"
+#endif
+
 
 #if !defined(__GNUC__)
 #include <rt_fp.h>
@@ -335,6 +343,10 @@ void HAL_Initialize()
     FS_AddVolumes();
 
     FileSystemVolumeList::InitializeVolumes();
+
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus) || defined(PLATFORM_ARM_NetduinoMini)
+	DeploymentTransport_Initialize();
+#endif
 
     LCD_Initialize();
     

@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) Microsoft Corporation.  All rights reserved.
+// Portions Copyright (c) Secret Labs LLC.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "usart.h"
@@ -82,6 +83,13 @@ void USART_DiscardBuffer( int ComPortNum, BOOL fRx )
 {
     USART_Driver::DiscardBuffer( ComPortNum, fRx );
 }
+
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus) || defined(PLATFORM_ARM_NetduinoMini)
+void USART_SetDataEventRaised( int ComPortNum ) 
+{
+    USART_Driver::SetDataEventRaised( ComPortNum );
+}
+#endif
 
 BOOL USART_ConnectEventSink( int ComPortNum, int EventType, void *pContext, PFNUsartEvent pfnUsartEvtHandler, void **ppArg )
 {
@@ -394,13 +402,16 @@ int USART_Driver::Read( int ComPortNum, char* Data, size_t size )
 
     {
         GLOBAL_LOCK(irq);
-     
+
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus) || defined(PLATFORM_ARM_NetduinoMini)
+#else
         State.fDataEventSet  = FALSE;        
 
         if(!State.RxQueue.IsEmpty())
         {
             SetEvent( ComPortNum, USART_EVENT_DATA_CHARS );
         }
+#endif
      }
 
     return CharsRead;
@@ -775,6 +786,23 @@ void USART_Driver::DiscardBuffer( int ComPortNum, BOOL fRx )
     }
 }
 
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus) || defined(PLATFORM_ARM_NetduinoMini)
+void USART_Driver::SetDataEventRaised( int ComPortNum )
+{
+    if((ComPortNum < 0) || (ComPortNum >= TOTAL_USART_PORT)) return;
+
+    HAL_USART_STATE& State = Hal_Usart_State[ComPortNum];
+
+    {
+        GLOBAL_LOCK(irq);
+
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus) || defined(PLATFORM_ARM_NetduinoMini)
+        State.fDataEventSet  = FALSE;        
+#endif
+    }
+}
+#endif
+
 BOOL USART_Driver::ConnectEventSink( int ComPortNum, int EventType, void* pContext, PFNUsartEvent pfnUsartEvtHandler, void** ppArg )
 {
     if((ComPortNum < 0) || (ComPortNum >= TOTAL_USART_PORT)) return FALSE;
@@ -783,6 +811,15 @@ BOOL USART_Driver::ConnectEventSink( int ComPortNum, int EventType, void* pConte
         GLOBAL_LOCK(irq);
 
         HAL_USART_STATE& State = Hal_Usart_State[ComPortNum];
+
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus) || defined(PLATFORM_ARM_NetduinoMini)
+        // NOTE: .NET Micro Framework Bugfix by Secret Labs
+        /*       When not running under the debugger, this event can be wired up before the port is opened.  The port is not initialized until it is
+                 opened.  The State.PortIndex value is not populated until the port is initialized.  So State.PortIndex will always return 0 here as
+                 the PortIndex in these cases.  As such, we're manually populating the value if the port has not been initialized.  This is a patch. */
+      	if(!IS_USART_INITIALIZED(State))
+            State.PortIndex              = ComPortNum;
+#endif
 
         if(EventType == USART_EVENT_TYPE_DATA)
         {
@@ -810,6 +847,14 @@ void USART_Driver::SetEvent( int ComPortNum, unsigned int event )
     {
         GLOBAL_LOCK(irq);
         
+#if defined(PLATFORM_ARM_NetduinoMini)
+    // On Netduino Mini, swap the assignment of COM1 and COM2
+    if (ComPortNum == 0)
+        ComPortNum = 1;
+    else if (ComPortNum == 1)
+        ComPortNum = 0;
+#endif
+
         HAL_USART_STATE& State = Hal_Usart_State[ComPortNum];
 
         // Inorder to reduce the number of methods, we combine Error events and Data events in native code

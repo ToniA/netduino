@@ -133,7 +133,8 @@ extern void* private_realloc(void* ptr, unsigned int size);
  * a lot of data that needs to be copied, this should be set high.
  */
 #ifndef MEM_SIZE
-#define MEM_SIZE                        128 * 1024
+//#define MEM_SIZE                        128 * 1024
+#define MEM_SIZE                        10 * 1024
 #endif
 
 /**
@@ -218,7 +219,8 @@ extern void* private_realloc(void* ptr, unsigned int size);
  * this should be set high.
  */
 #ifndef MEMP_NUM_PBUF
-#define MEMP_NUM_PBUF                   32
+//#define MEMP_NUM_PBUF                   32
+#define MEMP_NUM_PBUF                   16
 #endif
 
 /**
@@ -235,7 +237,8 @@ extern void* private_realloc(void* ptr, unsigned int size);
  * (requires the LWIP_UDP option)
  */
 #ifndef MEMP_NUM_UDP_PCB
-#define MEMP_NUM_UDP_PCB                8
+//#define MEMP_NUM_UDP_PCB                8
+#define MEMP_NUM_UDP_PCB                4
 #endif
 
 /**
@@ -243,7 +246,8 @@ extern void* private_realloc(void* ptr, unsigned int size);
  * (requires the LWIP_TCP option)
  */
 #ifndef MEMP_NUM_TCP_PCB
-#define MEMP_NUM_TCP_PCB                16
+//#define MEMP_NUM_TCP_PCB                16
+#define MEMP_NUM_TCP_PCB                5
 #endif
 
 /**
@@ -295,7 +299,8 @@ extern void* private_realloc(void* ptr, unsigned int size);
  * (requires NO_SYS==0)
  */
 #ifndef MEMP_NUM_SYS_TIMEOUT
-#define MEMP_NUM_SYS_TIMEOUT           16
+//#define MEMP_NUM_SYS_TIMEOUT           16
+#define MEMP_NUM_SYS_TIMEOUT           8
 #endif
 
 /**
@@ -303,7 +308,8 @@ extern void* private_realloc(void* ptr, unsigned int size);
  * (only needed if you use the sequential API, like api_lib.c)
  */
 #ifndef MEMP_NUM_NETBUF
-#define MEMP_NUM_NETBUF                20
+//#define MEMP_NUM_NETBUF                20
+#define MEMP_NUM_NETBUF                6
 #endif
 
 /**
@@ -311,7 +317,8 @@ extern void* private_realloc(void* ptr, unsigned int size);
  * (only needed if you use the sequential API, like api_lib.c)
  */
 #ifndef MEMP_NUM_NETCONN
-#define MEMP_NUM_NETCONN               24
+//#define MEMP_NUM_NETCONN               24
+#define MEMP_NUM_NETCONN               10
 #endif
 
 /**
@@ -336,7 +343,8 @@ extern void* private_realloc(void* ptr, unsigned int size);
  * PBUF_POOL_SIZE: the number of buffers in the pbuf pool. 
  */
 #ifndef PBUF_POOL_SIZE
-#define PBUF_POOL_SIZE                  128
+//#define PBUF_POOL_SIZE                  128
+#define PBUF_POOL_SIZE                  16
 #endif
 
 /*
@@ -646,7 +654,8 @@ extern void* private_realloc(void* ptr, unsigned int size);
  * LWIP_IGMP==1: Turn on IGMP module. 
  */
 #ifndef LWIP_IGMP
-#define LWIP_IGMP                       1
+//#define LWIP_IGMP                       1
+#define LWIP_IGMP                       0
 #endif
 
 /*
@@ -771,7 +780,8 @@ extern void* private_realloc(void* ptr, unsigned int size);
  * (2 * TCP_MSS) for things to work well
  */
 #ifndef TCP_WND
-#define TCP_WND                         (4 * TCP_MSS)
+//#define TCP_WND                         (4 * TCP_MSS)
+#define TCP_WND                         (8 * TCP_MSS)
 #endif 
 
 /**
@@ -804,7 +814,8 @@ extern void* private_realloc(void* ptr, unsigned int size);
  * an upper limit on the MSS advertised by the remote host.
  */
 #ifndef TCP_MSS
-#define TCP_MSS                         536
+//#define TCP_MSS                         536
+#define TCP_MSS                         128
 #endif
 
 /**
@@ -911,7 +922,8 @@ extern void* private_realloc(void* ptr, unsigned int size);
  * TCP_MSS, IP header, and link header.
  */
 #ifndef PBUF_POOL_BUFSIZE
-#define PBUF_POOL_BUFSIZE               LWIP_MEM_ALIGN_SIZE(TCP_MSS+40+PBUF_LINK_HLEN)
+//#define PBUF_POOL_BUFSIZE               LWIP_MEM_ALIGN_SIZE(TCP_MSS+40+PBUF_LINK_HLEN)
+#define PBUF_POOL_BUFSIZE               128
 #endif
 
 /*

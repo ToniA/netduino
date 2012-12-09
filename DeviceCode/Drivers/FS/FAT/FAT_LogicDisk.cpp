@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) Microsoft Corporation.  All rights reserved.
+// Portions Copyright (c) Secret Labs LLC.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include <tinyhal.h>
@@ -1111,6 +1112,13 @@ BOOL FAT_LogicDisk::PopulateDiskSize()
 
     const BlockDeviceInfo *tmpBlockDeviceInfo = m_blockStorageDevice->GetDeviceInfo();
 
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus) || defined(PLATFORM_ARM_NetduinoMini)
+    // if our device has zero bytes per sector, we cannot calculate its disk size.
+    if(tmpBlockDeviceInfo->BytesPerSector == 0)
+    {
+        return FALSE;
+    }
+#endif
     
     //find sector address for first BLOCKTYPE_FILESYSTEM  block 
     if(m_blockStorageDevice->FindForBlockUsage(BlockUsage::FILESYSTEM, beginBlock, regionIndex, rangeIndex))

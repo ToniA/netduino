@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) Microsoft Corporation.  All rights reserved.
+// Portions Copyright (c) Secret Labs LLC.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////#include <tinyhal.h>
 
 #include <tinyhal.h>
@@ -182,8 +183,8 @@ int AT91_EMAC_LWIP_Driver::Open(int index)
     // Enable Interrupt
     CPU_INTC_ActivateInterrupt(AT91C_ID_EMAC, (HAL_CALLBACK_FPN)AT91_EMAC_LWIP_interrupt, &g_AT91_EMAC_NetIF);
 
-    /* Initialize the continuation routine for the driver interrupt and receive */    
-    InitContinuations( pNetIF );
+//    /* Initialize the continuation routine for the driver interrupt and receive */    
+//    InitContinuations( pNetIF );
 
     pNetIF = netif_add( &g_AT91_EMAC_NetIF, &ipaddr, &subnetmask, &gateway, NULL, AT91_EMAC_ethhw_init, ethernet_input );
 
@@ -194,6 +195,9 @@ int AT91_EMAC_LWIP_Driver::Open(int index)
     {
         netif_set_up( pNetIF );
     }
+
+    /* This call moved by Secret Labs; the pNetIF was getting stored at address 0x0 and asserting when network cable was attached
+       this change is consistent with the ENC28J60 drivers. */
     /* Initialize the continuation routine for the driver interrupt and receive */    
     InitContinuations( pNetIF );
 

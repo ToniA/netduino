@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) Microsoft Corporation.  All rights reserved.
+// Portions Copyright (c) Secret Labs LLC.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include <tinyhal.h>
@@ -73,13 +74,19 @@ BOOL AT91_SPI_Driver::Initialize()
     // should not put the SPI pins to any state, as it is unknown what user has connected it to.
     // put pins as in input would be the safest state.
     // SPI 0
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus) || defined(PLATFORM_ARM_NetduinoMini)
+#else
     CPU_GPIO_EnableInputPin(AT91_SPI0_SCLK, FALSE, NULL, GPIO_INT_NONE, RESISTOR_PULLUP);
+#endif
     CPU_GPIO_EnableInputPin(AT91_SPI0_MOSI, FALSE, NULL, GPIO_INT_NONE, RESISTOR_PULLUP);
     CPU_GPIO_EnableInputPin(AT91_SPI0_MISO, FALSE, NULL, GPIO_INT_NONE, RESISTOR_PULLUP);
     
 #if (AT91C_MAX_SPI == 2)
     // SPI 1 
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus) || defined(PLATFORM_ARM_NetduinoMini)
+#else
     CPU_GPIO_EnableInputPin(AT91_SPI1_SCLK, FALSE, NULL, GPIO_INT_NONE, RESISTOR_PULLUP);
+#endif
     CPU_GPIO_EnableInputPin(AT91_SPI1_MOSI, FALSE, NULL, GPIO_INT_NONE, RESISTOR_PULLUP);
     CPU_GPIO_EnableInputPin(AT91_SPI1_MISO, FALSE, NULL, GPIO_INT_NONE, RESISTOR_PULLUP);
 #endif

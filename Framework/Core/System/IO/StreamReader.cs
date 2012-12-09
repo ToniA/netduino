@@ -1,3 +1,5 @@
+// Portions Copyright (c) Secret Labs LLC.
+
 using System;
 using System.Text;
 using System.IO;
@@ -10,7 +12,8 @@ namespace System.IO
     public class StreamReader : TextReader
     {
         private const int c_MaxReadLineLen = 0xFFFF;
-        private const int c_BufferSize = 0xFFF;
+//        private const int c_BufferSize = 0xFFF;
+        private const int c_BufferSize = 0x200;
 
         //--//
 
@@ -203,9 +206,11 @@ namespace System.IO
         public override string ReadLine()
         {
 
-            int bufLen = 0xFFF;
+//            int bufLen = 0xFFF;
+            int bufLen = 0x200;
             char[] readLineBuff = new char[bufLen];
-            int growSize = 0xFFF;
+//            int growSize = 0xFFF;
+            int growSize = 0x200;
             int curPos = 0;
             int newChar;
             int startPos = m_curBufPos;
@@ -401,7 +406,7 @@ namespace System.IO
         {
             int bytesAvailable = m_curBufLen - m_curBufPos;
 
-            // here we trust that the copy in place doe not overwrites data
+            // here we trust that the copy in place does not overwrites data
             Array.Copy(m_buffer, m_curBufPos, m_buffer, 0, bytesAvailable);
 
             m_curBufPos = 0;

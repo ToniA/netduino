@@ -1,3 +1,4 @@
+/* Portions Copyright (c) Secret Labs LLC. */
 /**
  * @file
  * Dynamic Host Configuration Protocol client
@@ -250,6 +251,7 @@ dhcp_select(struct netif *netif)
   struct dhcp *dhcp = netif->dhcp;
   err_t result;
   u16_t msecs;
+  int i;
 #if LWIP_NETIF_HOSTNAME
   const char *p;
 #endif /* LWIP_NETIF_HOSTNAME */
@@ -278,6 +280,15 @@ dhcp_select(struct netif *netif)
     dhcp_option_byte(dhcp, DHCP_OPTION_ROUTER);
     dhcp_option_byte(dhcp, DHCP_OPTION_BROADCAST);
     dhcp_option_byte(dhcp, DHCP_OPTION_DNS_SERVER);
+
+    // [SL_CHANGE - ClientId should be consistent in both Discover and Request packets]
+    // [MS_CHANGE - Add ClientId option required for MS DHCP network]
+    dhcp_option(dhcp, DHCP_OPTION_CLIENT_ID, 1 + netif->hwaddr_len);
+    dhcp_option_byte(dhcp, 1                    ); //type - HardwareAddress
+    for(i=0; i<netif->hwaddr_len; i++)
+    {
+        dhcp_option_byte(dhcp, netif->hwaddr[i]);
+    }
 
 #if LWIP_NETIF_HOSTNAME
     p = (const char*)netif->hostname;
@@ -1508,6 +1519,7 @@ dhcp_create_request(struct netif *netif)
            (dhcp->p_out->len >= sizeof(struct dhcp_msg)));
 
   /* reuse transaction identifier in retransmissions */
+//  if (dhcp->state!=DHCP_REQUESTING && dhcp->tries==0) // Secret Labs: could be added, but could cause issues if previous packet was _not_ DHCP Discover request.
   if (dhcp->tries==0)
       xid++;
   dhcp->xid = xid;

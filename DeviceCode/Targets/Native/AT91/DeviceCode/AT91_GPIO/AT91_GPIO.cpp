@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) Microsoft Corporation.  All rights reserved.
+// Portions Copyright (c) Secret Labs LLC.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include <tinyhal.h>
@@ -35,7 +36,11 @@ const UINT8 __section(rodata) AT91_GPIO_Driver::c_Gpio_Attributes[AT91_GPIO_Driv
     GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  10
     GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  11
     GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  12
+#if defined(PLATFORM_ARM_NetduinoPlus)
+    GPIO_ATTRIBUTE_INPUT                        , //  13 // special case: SD RSV on Netduino Plus
+#else
     GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  13
+#endif
     GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  14
     GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  15
     GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  16
@@ -51,7 +56,13 @@ const UINT8 __section(rodata) AT91_GPIO_Driver::c_Gpio_Attributes[AT91_GPIO_Driv
     GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  26
     GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  27
     GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  28
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus)
+    GPIO_ATTRIBUTE_INPUT                        , //  29 // special case: /SWITCH1 (connected through to RESET) on Netduino/Netduino Plus
+#elif defined(PLATFORM_ARM_NetduinoMini)
+    GPIO_ATTRIBUTE_INPUT                        , //  29 // special case: /DTR_SCALED_MCU on Netduino Mini
+#else
     GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  29
+#endif
     GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  30
     GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  31
 #if (AT91_MAX_GPIO > 32)
@@ -80,7 +91,11 @@ const UINT8 __section(rodata) AT91_GPIO_Driver::c_Gpio_Attributes[AT91_GPIO_Driv
     GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  54
     GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  55
     GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  56
+#if defined(PLATFORM_ARM_NetduinoPlus)
+    GPIO_ATTRIBUTE_INPUT                        , //  57 // special case: /MICRO_SD_CARD_INSERTED on Netduino Plus
+#else
     GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  57
+#endif
     GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  58
     GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  59
     GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  60
@@ -349,6 +364,21 @@ void AT91_GPIO_Driver::DisablePin( GPIO_PIN pin, GPIO_RESISTOR resistorState, UI
 {
     ASSERT(pin < c_MaxPins);
 
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus)
+    // special case: automatically set MUX1/MUX2 to ENABLED outputs with TWD/TWCK to activate them; they were previously reserved in ReservePin.
+    switch ((UINT32)pin)
+    {
+    case 10: // TWD
+        EnableOutputPin(AT91_GPIO_Driver::PA14, FALSE); // MUX1: AD4 should default to I2C TWD
+        break;
+    case 11: // TWCK
+        EnableOutputPin(AT91_GPIO_Driver::PA15, FALSE); // MUX2: AD5 should default to I2C TWCK
+        break;
+    case 29: // /SWITCH1
+        EnableOutputPin(AT91_GPIO_Driver::PA30, FALSE); // /SW1_CTRL_OF_RESET: SW1 should default to /NRST
+    }
+#endif
+
     UINT32  bitmask = 1 << PinToBit ( pin );
     UINT32  port = PinToPort( pin );
 
@@ -393,7 +423,18 @@ void AT91_GPIO_Driver::DisablePin( GPIO_PIN pin, GPIO_RESISTOR resistorState, UI
 
 void AT91_GPIO_Driver::EnableOutputPin( GPIO_PIN pin, BOOL initialState )
 {
-
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus)
+    // special case: automatically set MUX1/MUX2 to ENABLED outputs with TWD/TWCK to activate them; they were previously reserved in ReservePin.
+    switch ((UINT32)pin)
+    {
+    case 10: // TWD
+        EnableOutputPin(AT91_GPIO_Driver::PA14, FALSE); // MUX1
+        break;
+    case 11: // TWCK
+        EnableOutputPin(AT91_GPIO_Driver::PA15, FALSE); // MUX2
+        break;
+    }
+#endif
     
     UINT32   bitmask  = 1 << PinToBit( pin );
     UINT32  port = PinToPort( pin );
@@ -426,6 +467,20 @@ BOOL AT91_GPIO_Driver::EnableInputPin( GPIO_PIN pin, BOOL GlitchFilterEnable, GP
 {
     ASSERT(pin < c_MaxPins);
 
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus)
+    // special case: automatically set MUX1/MUX2 to ENABLED outputs with TWD/TWCK to activate them; they were previously reserved in ReservePin.
+    switch ((UINT32)pin)
+    {
+    case 10: // TWD
+        EnableOutputPin(AT91_GPIO_Driver::PA14, FALSE); // MUX1
+        break;
+    case 11: // TWCK
+        EnableOutputPin(AT91_GPIO_Driver::PA15, FALSE); // MUX2
+        break;
+    case 29: // /SWITCH1
+        EnableOutputPin(AT91_GPIO_Driver::PA30, TRUE); // /SW1_CTRL_OF_RESET
+    }
+#endif
 
     UINT32   bitmask  = 1 << PinToBit( pin );
     UINT32  port = PinToPort( pin );
@@ -709,6 +764,27 @@ BOOL AT91_GPIO_Driver::ReservePin( GPIO_PIN pin, BOOL fReserve )
 
     if((res & (1u << bit)) == mask) return FALSE;
 
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus)
+    // special case: automatically reserve MUX1/MUX2 with TWD/TWCK to ensure that AD4/AD5 are not used simultaneously.
+    // (or in the case of reserving /SWITCH1, drive pin /SW1_CTRL_OF_RESET low to enable software GPIO)
+    BOOL muxReserved = FALSE;
+    switch ((UINT32)pin)
+    {
+    case 10: // TWD
+        muxReserved = ReservePin(AT91_GPIO_Driver::PA14, fReserve); // MUX1
+        if (!muxReserved) return FALSE;
+        break;
+    case 11: // TWCK
+        muxReserved = ReservePin(AT91_GPIO_Driver::PA15, fReserve); // MUX2
+        if (!muxReserved) return FALSE;
+        break;
+    case 29: // /SWITCH1
+        muxReserved = ReservePin(AT91_GPIO_Driver::PA30, fReserve); // /SW1_CTRL_OF_RESET
+        if (!muxReserved) return FALSE;
+		break;
+    }
+#endif
+
     if(fReserve)
     {
         res |= (1u << bit);
@@ -824,8 +900,8 @@ void AT91_GPIO_Driver::PIN_ISR_DESCRIPTOR::HandleDebounce( BOOL edge )
 
     UINT32 count = c_DebounceCount;
 
-    // we implement debouce by reading the pin a finite number of times
-    while(--count > 0)
+    // we implement debounce by reading the pin a finite number of times
+    while(count-- > 0)
     {
         if(GetPinState( m_pin ) != edge)
         {

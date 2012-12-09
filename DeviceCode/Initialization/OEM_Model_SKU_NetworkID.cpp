@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) Microsoft Corporation.  All rights reserved.
+// Portions Copyright (c) Secret Labs LLC.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include <tinyhal.h>
@@ -176,19 +177,42 @@ const ConfigurationSector __section(SectionForConfig) g_ConfigurationSector =
 
     // OEM_MODEL_SKU OEM_Model_SKU;
     {
+#if defined(PLATFORM_ARM_Netduino)
+        0x22,       // UINT8   OEM;    // 0x22B1 = Secret Labs VID
+        0xB1,       // UINT8   Model;
+        0x1000,     // UINT16  SKU;    // 0x1000 = Netduino PID
+#elif defined(PLATFORM_ARM_NetduinoPlus)
+        0x22,       // UINT8   OEM;    // 0x22B1 = Secret Labs VID
+        0xB1,       // UINT8   Model;
+        0x1001,     // UINT16  SKU;    // 0x1001 = Netduino Plus PID
+#elif defined(PLATFORM_ARM_NetduinoMini)
+        0x22,       // UINT8   OEM;    // 0x22B1 = Secret Labs VID
+        0xB1,       // UINT8   Model;
+        0x1002,     // UINT16  SKU;    // 0x1002 = Netduino Mini PID
+#else
         OEM_MS,     // UINT8   OEM;
         0,          // UINT8   Model;
         0xFFFF,     // UINT16  SKU;
+#endif
     },
 
     //--//--//--//
 
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus) || defined(PLATFORM_ARM_NetduinoMini)
+    // OEM_SERIAL_NUMBERS OemSerialNumbers
+    {
+        { 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,      // UINT8 module_serial_number[32];
+          0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, },
+        { 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, }    // UINT8 system_serial_number[16];
+    },
+#else
     // OEM_SERIAL_NUMBERS OemSerialNumbers
     {
         { 0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,      // UINT8 module_serial_number[32];
           0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF, },
         { 0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF, }    // UINT8 system_serial_number[16];
     },
+#endif
 
     // CLR Config Data
     {
