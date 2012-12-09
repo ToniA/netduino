@@ -201,20 +201,12 @@
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\stubs\processor\stubs_lcd\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
-    <DriverLibs Include="cpu_watchdog_stubs.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\stubs\Processor\stubs_watchdog\dotNetMF.proj" />
-  </ItemGroup>
-  <ItemGroup>
     <DriverLibs Include="system_initialization_hal.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Initialization\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
     <DriverLibs Include="asyncproccall_pal.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\AsyncProcCall\dotNetMF.proj" />
-  </ItemGroup>
-  <ItemGroup>
-    <DriverLibs Include="Watchdog_pal_stubs.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Pal\Watchdog\stubs\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
     <DriverLibs Include="blockstorage_pal.$(LIB_EXT)" />
@@ -375,6 +367,10 @@
   <ItemGroup>
     <DriverLibs Include="AT91_USB.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\AT91\DeviceCode\AT91_USB\dotNetMF.proj" />
+  </ItemGroup>
+  <ItemGroup>
+    <DriverLibs Include="AT91_WATCHDOG.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\AT91\DeviceCode\AT91_WATCHDOG\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
     <PlatformIndependentLibs Include="CRC.$(LIB_EXT)" />

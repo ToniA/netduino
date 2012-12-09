@@ -85,7 +85,14 @@ bool WaitForTinyBooterUpload( INT32 &timeout_ms )
     // user override (SW1 button held)
     Events_WaitForEvents(0,100); // wait for buttons to init
     if (!CPU_GPIO_GetPinState(AT91_GPIO_Driver::PA29))
-    {
+    {                 
+        // Turn off the internal LED as sign for the watchdog to be disabled        
+        CPU_GPIO_EnableOutputPin(AT91_GPIO_Driver::PB23, false);
+        CPU_GPIO_SetPinState(AT91_GPIO_Driver::PB23, false);
+
+        // Disable the watchdog
+        *((volatile UINT32*) 0xFFFFFD44) = 0x8000;
+                    
         timeout_ms = 5000;
         enterBooterMode = true;
     }
@@ -114,7 +121,6 @@ void TinyBooter_OnStateChange( TinyBooterState state, void* data, void ** retDat
         // The data parameter is a pointer to the timeout value for the booter mode.
         ////////////////////////////////////////////////////////////////////////////////////
         case State_ButtonPress:
-
             break;
 
         ////////////////////////////////////////////////////////////////////////////////////
@@ -123,7 +129,7 @@ void TinyBooter_OnStateChange( TinyBooterState state, void* data, void ** retDat
         ////////////////////////////////////////////////////////////////////////////////////
         case State_ValidCommunication:
             if(NULL != data)
-            {
+            {              
                 INT32* timeout_ms = (INT32*)data;
 
                 // if we received any com/usb data then let's change the timeout to at least 20 seconds
@@ -150,7 +156,6 @@ void TinyBooter_OnStateChange( TinyBooterState state, void* data, void ** retDat
         case State_MemoryErase:
             hal_fprintf( STREAM_LCD, "Er: 0x%08x\r", (UINT32)data );
             break;
-
             
         ////////////////////////////////////////////////////////////////////////////////////
         // State_CryptoXXX - Start and result of Crypto signature check
