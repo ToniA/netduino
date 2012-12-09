@@ -15,6 +15,7 @@ extern struct SD_BL_CONFIGURATION g_SD_BL_Config;
 static BYTE s_sectorBuff[SD_DATA_SIZE];
 static BYTE s_cmdBuff[SD_CMD_SIZE];
 
+static BOOL s_isSDHC = FALSE;
 
 //--//
 
@@ -320,7 +321,7 @@ BOOL SD_BS_Driver::ChipInitialize(void *context)
     {
         SD_SendCmdWithR1Resp(SD_APP_CMD, 0, 0xFF, R1_IN_IDLE_STATUS);
 
-        response = SD_SendCmdWithR1Resp(SD_SEND_OP_COND, 0, 0xFF, R1_IN_READY_STATUS);
+        response = SD_SendCmdWithR1Resp(SD_SEND_OP_COND, (1 << 30), 0xFF, R1_IN_READY_STATUS);
 
         if(response == R1_IN_READY_STATUS)
         {
@@ -392,6 +393,8 @@ BOOL SD_BS_Driver::ChipInitialize(void *context)
         if(regCSD[0] == 0x00)
         //SD spec version1.0
         {
+            s_isSDHC = FALSE;
+        	  
             C_SIZE = ((regCSD[6] &0x3) << 10) | (regCSD[7] << 2) | ((regCSD[8] &0xC0) >> 6);
 
             C_SIZE_MULT = ((regCSD[9] &0x03) << 1) | ((regCSD[10] &0x80) >> 7);
@@ -405,6 +408,8 @@ BOOL SD_BS_Driver::ChipInitialize(void *context)
         else
         //SD spec version2.0
         {
+            s_isSDHC = TRUE;
+
             C_SIZE = ((regCSD[7] &0x3F) << 16) | (regCSD[8] << 8) | regCSD[9];
 
             ERASE_BL_EN = ((regCSD[10] &0x40) == 0x00) ? FALSE : TRUE;
@@ -588,7 +593,7 @@ BOOL SD_BS_Driver::ReadSector(SectorAddress sectorAddress, UINT32 Offset, UINT32
         SD_CsSetLow();
 
         // send CMD17 and wait for DATA_BLOCK_TOKEN
-        response = SD_SendCmdWithR1Resp(SD_READ_SINGLE_BLOCK, sectorAddress << 9, 0xff, SD_START_DATA_BLOCK_TOKEN, 10000);
+        response = SD_SendCmdWithR1Resp(SD_READ_SINGLE_BLOCK, (!s_isSDHC ? (sectorAddress << 9) : sectorAddress), 0xff, SD_START_DATA_BLOCK_TOKEN, 10000);
 
         if(response == SD_START_DATA_BLOCK_TOKEN)
         {
@@ -754,7 +759,7 @@ BOOL SD_BS_Driver::WriteX(void *context, ByteAddress phyAddr, UINT32 NumBytes, B
         SD_CsSetLow();
         
         // send CMD24 --read single block data
-        response = SD_SendCmdWithR1Resp(SD_WRITE_SINGLE_BLOCK, StartSector << 9, 0xff, R1_IN_READY_STATUS);
+        response = SD_SendCmdWithR1Resp(SD_WRITE_SINGLE_BLOCK, (!s_isSDHC ? (StartSector << 9) : StartSector), 0xff, R1_IN_READY_STATUS);
 
         if(response == R1_IN_READY_STATUS)
         {
@@ -852,7 +857,7 @@ BOOL SD_BS_Driver::EraseSectors(SectorAddress Address, INT32 SectorCount)
     SD_CsSetLow(); // cs low
 
     //send ERASE_WR_BLK_START command
-    response = SD_SendCmdWithR1Resp(SD_ERASE_WR_BLK_START, Address << 9, 0xff, R1_IN_READY_STATUS);
+    response = SD_SendCmdWithR1Resp(SD_ERASE_WR_BLK_START, (s_isSDHC ? (Address << 9) : Address), 0xff, R1_IN_READY_STATUS);
 
     if(response != R1_IN_READY_STATUS)
     {
@@ -861,7 +866,7 @@ BOOL SD_BS_Driver::EraseSectors(SectorAddress Address, INT32 SectorCount)
     }
 
     //send ERASE_WR_BLK_END command
-    response = SD_SendCmdWithR1Resp(SD_ERASE_WR_BLK_END, (Address + SectorCount - 1) << 9, 0xff, R1_IN_READY_STATUS);
+    response = SD_SendCmdWithR1Resp(SD_ERASE_WR_BLK_END, (!s_isSDHC ? ((Address + SectorCount - 1) << 9) : (Address + SectorCount - 1)), 0xff, R1_IN_READY_STATUS);
 
     if(response != R1_IN_READY_STATUS)
     {

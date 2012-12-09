@@ -804,8 +804,11 @@ struct AT91_SPI
     static const    UINT32 SPI_CSR_CPOL             = (0x1 <<  0); // clock polarity
     static const    UINT32 SPI_CSR_NCPHA            = (0x1 <<  1); // clock phase
     static const    UINT32 SPI_CSR_BITS_MASK        = (0xF << 4); // bits per transfer
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus) || defined(PLATFORM_ARM_NetduinoMini)
+#else
     static const    UINT32 SPI_CSR_8BITS            = (0x0 <<  4);
     static const    UINT32 SPI_CSR_16BITS           = (0x8 <<  4);
+#endif
     static const    UINT32 SPI_CSR_SCBR_MASK        = (0xFF<< 8); // serial clock baud rate
     static const    UINT32 SPI_CSR_SCBR_SHIFT       = (0x8);     // serial clock baud rate
     static const    UINT32 SPI_CSR_DLYBS_MASK       = (0xFF<< 16); // delay before SPCK
@@ -828,6 +831,10 @@ struct AT91_SPI
     {
         UINT32 CSR = 0;
 
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus) || defined(PLATFORM_ARM_NetduinoMini)
+//	if(Configuration.BitsPerTransfer != 0x00) // optional failsafe for unmanaged code which don't set BitsPerTransfer (default to 8 bits | (0 << 4))
+		CSR |= ((Configuration.BitsPerTransfer - 0x08) << 4);
+#else
         if(Configuration.MD_16bits)
         {
             CSR |= SPI_CSR_16BITS;
@@ -836,6 +843,7 @@ struct AT91_SPI
         {
             CSR |= SPI_CSR_8BITS;
         }
+#endif
 
     // NOTE :: AT91 core SPI phase definition is opposite to the typical convention
     // phase = 0 for at91, data change at 2nd edge
@@ -1898,8 +1906,15 @@ struct AT91
     static AT91_TC      & TIMER( int sel );
     static AT91_WATCHDOG& WTDG()            { return *(AT91_WATCHDOG*)(size_t)(AT91_WATCHDOG::c_Base                                      ); }
 
+#if defined(PLATFORM_ARM_NetduinoMini)
+    // On Netduino Mini, swap the assignment of COM1 and COM2
+    static AT91_USART   & USART( int sel )  { if( sel == 0)          return *(AT91_USART   *)(size_t)(AT91_USART::c_Base);
+                                                  else if( sel == 1) return *(AT91_USART   *)(size_t)(AT91_USART::c_Base_dbg);
+                                                  else               return *(AT91_USART   *)(size_t)(AT91_USART::c_Base + ((sel - 1) * 0x4000));               }
+#else
     static AT91_USART   & USART( int sel )  { if( sel == 0) return *(AT91_USART   *)(size_t)(AT91_USART::c_Base_dbg);
                                                   else      return *(AT91_USART   *)(size_t)(AT91_USART::c_Base + ((sel - 1) * 0x4000));                        }
+#endif
 
     static AT91_UDP     & UDP()             { return *(AT91_UDP     *)(size_t)(AT91_UDP     ::c_Base                                      ); }
 

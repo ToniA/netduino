@@ -14,7 +14,7 @@
     <PLATFORM_HEAP_SIZE_THRESHOLD_UPPER>15360</PLATFORM_HEAP_SIZE_THRESHOLD_UPPER>
   </PropertyGroup>
   <PropertyGroup>
-    <OEMSystemInfoString>Netduino Mini by Secret Labs LLC</OEMSystemInfoString>
+    <OEMSystemInfoString>Netduino Mini (v4.1.1.0 b1) by Secret Labs LLC</OEMSystemInfoString>
   </PropertyGroup>
   <ItemGroup>
     <IncludePaths Include="Solutions\NetduinoMini" />

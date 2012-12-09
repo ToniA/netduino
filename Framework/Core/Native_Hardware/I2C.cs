@@ -8,6 +8,8 @@ namespace Microsoft.SPOT.Hardware
         public class I2CTransaction
         {
             public readonly byte[] Buffer;
+            protected readonly byte Custom_InternalAddressSize;
+            protected readonly uint Custom_InternalAddress;
 
             //--//
 
@@ -19,6 +21,8 @@ namespace Microsoft.SPOT.Hardware
                 }
 
                 this.Buffer = buffer;
+                this.Custom_InternalAddressSize = 0;
+                this.Custom_InternalAddress = 0;
             }
         }
 

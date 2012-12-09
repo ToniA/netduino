@@ -29,7 +29,7 @@ void ApplicationEntryPoint()
 BOOL Solution_GetReleaseInfo(MfReleaseInfo& releaseInfo)
 {
     MfReleaseInfo::Init(releaseInfo,
-                        4, 1, 0, 6,
+                        4, 1, 1, 0,
                         OEMSYSTEMINFOSTRING, hal_strlen_s(OEMSYSTEMINFOSTRING)
                         );
     return TRUE; // alternatively, return false if you didn't initialize the releaseInfo structure.

@@ -83,11 +83,12 @@ struct SD_BLOCK_CONFIG g_SD_BS_Config =
 #define SD_CS                    GPIO_PIN_NONE
 #define SD_CS_ACTIVE             FALSE
 #define SD_MSK_IDLE              TRUE
-#define SD_MSK_SAMPLE_EDGE       FALSE
-#define SD_16BIT_OP              FALSE
-#define SD_CLOCK_RATE_KHZ        400
-#define SD_CS_SETUP_USEC         0
-#define SD_CS_HOLD_USEC          0
+#define SD_MSK_SAMPLE_EDGE       TRUE
+//#define SD_16BIT_OP              FALSE
+#define SD_BITSPERTRANSFER       8
+#define SD_CLOCK_RATE_KHZ        10000
+#define SD_CS_SETUP_USEC         1
+#define SD_CS_HOLD_USEC          1
 #define SD_MODULE                0
 #define SD_INSERT_ISR_PIN        GPIO_PIN_NONE
 #define SD_EJECT_ISR_PIN         GPIO_PIN_NONE
@@ -108,7 +109,8 @@ struct SD_BL_CONFIGURATION g_SD_BL_Config =
         SD_CS_ACTIVE,
         SD_MSK_IDLE,
         SD_MSK_SAMPLE_EDGE,
-        SD_16BIT_OP,
+//        SD_16BIT_OP,
+        SD_BITSPERTRANSFER,
         SD_CLOCK_RATE_KHZ,
         SD_CS_SETUP_USEC,
         SD_CS_HOLD_USEC,

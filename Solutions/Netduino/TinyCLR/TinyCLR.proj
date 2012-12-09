@@ -57,6 +57,7 @@
   <Import Project="$(SPOCLIENT)\Framework\Features\Usb.featureproj" />
   <Import Project="$(SPOCLIENT)\Solutions\Netduino\DeviceCode\SecretLabs_NETMF_Hardware\SecretLabs.NETMF.Hardware.featureproj" />
   <Import Project="$(SPOCLIENT)\Solutions\Netduino\DeviceCode\SecretLabs_NETMF_Diagnostics\SecretLabs.NETMF.Diagnostics.featureproj" />
+  <Import Project="$(SPOCLIENT)\Solutions\Netduino\DeviceCode\SecretLabs_NETMF_IO\SecretLabs.NETMF.IO.featureproj" />
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Interop.Settings" />
   <ItemGroup>        
      <DriverLibs Include="SecretLabs_NETMF_Hardware.$(LIB_EXT)" />
@@ -65,6 +66,10 @@
   <ItemGroup>        
      <DriverLibs Include="SecretLabs_NETMF_Diagnostics.$(LIB_EXT)" />
      <RequiredProjects Include="$(SPOCLIENT)\Solutions\Netduino\DeviceCode\SecretLabs_NETMF_Diagnostics\dotNetMF.proj" />
+  </ItemGroup>
+  <ItemGroup>        
+     <DriverLibs Include="SecretLabs_NETMF_IO.$(LIB_EXT)" />
+     <RequiredProjects Include="$(SPOCLIENT)\Solutions\Netduino\DeviceCode\SecretLabs_NETMF_IO\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
     <DriverLibs Include="LargeBuffer_hal_stubs.$(LIB_EXT)" />

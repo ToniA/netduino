@@ -15,7 +15,11 @@ struct SPI_CONFIGURATION
     BOOL           CS_Active;             // False = LOW active,      TRUE = HIGH active
     BOOL           MSK_IDLE;              // False = LOW during idle, TRUE = HIGH during idle
     BOOL           MSK_SampleEdge;        // False = sample falling edge,  TRUE = samples on rising
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus) || defined(PLATFORM_ARM_NetduinoMini)
+    UINT8          BitsPerTransfer;
+#else
     BOOL           MD_16bits;
+#endif
     UINT32         Clock_RateKHz;
     UINT32         CS_Setup_uSecs;
     UINT32         CS_Hold_uSecs;

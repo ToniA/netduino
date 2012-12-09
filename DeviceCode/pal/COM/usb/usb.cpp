@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) Microsoft Corporation.  All rights reserved.
+// Portions Copyright (c) Secret Labs LLC.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "USB.h"
@@ -1238,10 +1239,12 @@ UINT8 USB_HandleConfigurationRequests( USB_CONTROLLER_STATE* State, USB_SETUP_PA
     DescriptorIndex =  (Setup->wValue & 0x00FF);
     State->Expected =   Setup->wLength;
 
-    if(State->Expected == 0)
-    {
-        return USB_STATE_DONE;
-    }
+// modified by Secret Labs
+//    if(State->Expected == 0)
+//    if((State->Expected == 0) && (Setup->bRequest != 0x0A))
+//    {
+//        return USB_STATE_DONE;
+//    }
 
     //
     // The very first GET_DESCRIPTOR command out of reset should always return at most PacketSize bytes.
