@@ -1,5 +1,0 @@
-To build the Netduino Firmware v4.1.0 (update 6):
-
-1. Install the .NET Micro Framework 4.1 Platform Kit
-2. Copy these files over the Platform Kit (typically into C:\MicroFrameworkPK_v4_1)
-3. Compile the desired Netduino solution

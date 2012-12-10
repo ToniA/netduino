@@ -75,6 +75,10 @@ HRESULT Library_spot_hardware_native_Microsoft_SPOT_Hardware_I2CDevice::Execute_
             bool                  fRead;
             CLR_UINT8*            src;
             CLR_UINT32            length;
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus) || defined(PLATFORM_ARM_NetduinoMini)
+            CLR_UINT8             internalAddressSize;
+            CLR_UINT32            internalAddress;
+#endif
                         
             xActionRef = (CLR_RT_HeapBlock*)xActionRefs->GetElement( unit );  FAULT_ON_NULL(xActionRef);
             xActionRef = xActionRef->Dereference();                           FAULT_ON_NULL(xActionRef); 
@@ -89,6 +93,10 @@ HRESULT Library_spot_hardware_native_Microsoft_SPOT_Hardware_I2CDevice::Execute_
             }
 
             data = xActionRef[ Library_spot_hardware_native_Microsoft_SPOT_Hardware_I2CDevice__I2CTransaction::FIELD__Buffer ].DereferenceArray();  FAULT_ON_NULL(data);
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus) || defined(PLATFORM_ARM_NetduinoMini)
+            internalAddressSize = xActionRef[ Library_spot_hardware_native_Microsoft_SPOT_Hardware_I2CDevice__I2CTransaction::FIELD__InternalAddressSize ].NumericByRef().u1;
+            internalAddress = xActionRef[ Library_spot_hardware_native_Microsoft_SPOT_Hardware_I2CDevice__I2CTransaction::FIELD__InternalAddress ].NumericByRef().u4;
+#endif
             
             src    = data->GetFirstElement(); 
             length = data->m_numOfElements;
@@ -98,7 +106,11 @@ HRESULT Library_spot_hardware_native_Microsoft_SPOT_Hardware_I2CDevice::Execute_
                 TINYCLR_SET_AND_LEAVE(CLR_E_INVALID_PARAMETER);
             }
             
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus) || defined(PLATFORM_ARM_NetduinoMini)
+            TINYCLR_CHECK_HRESULT(xAction->PrepareXActionUnit( src, length, unit, fRead, internalAddressSize, internalAddress ));
+#else
             TINYCLR_CHECK_HRESULT(xAction->PrepareXActionUnit( src, length, unit, fRead ));
+#endif
         }   
         
         TINYCLR_CHECK_HRESULT(xAction->Enqueue());            

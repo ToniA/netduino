@@ -21,7 +21,13 @@ HRESULT Library_spot_hardware_native_Microsoft_SPOT_Hardware_SPI::InternalWriteR
         SPI_CONFIGURATION       config;
         TINYCLR_CHECK_HRESULT(Library_spot_hardware_native_Microsoft_SPOT_Hardware_SPI__Configuration::GetInitialConfig( pThis[ FIELD__m_config ], config ));
 
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus) || defined(PLATFORM_ARM_NetduinoMini)
+	// if # of bits per transfer was not specified, default to 16 bits for backwards compatibility
+	if (config.BitsPerTransfer == 0x00)
+        	config.BitsPerTransfer = 0x10; // 16 bits
+#else
         config.MD_16bits = TRUE;
+#endif
 
         CPU_SPI_Initialize();
         
@@ -57,7 +63,12 @@ HRESULT Library_spot_hardware_native_Microsoft_SPOT_Hardware_SPI::InternalWriteR
         SPI_CONFIGURATION       config;
         TINYCLR_CHECK_HRESULT(Library_spot_hardware_native_Microsoft_SPOT_Hardware_SPI__Configuration::GetInitialConfig( pThis[ FIELD__m_config ], config ));
 
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus) || defined(PLATFORM_ARM_NetduinoMini)
+	// when writing bytes, always force 8 bits per transfer
+        config.BitsPerTransfer = 0x08; // 8 bits
+#else
         config.MD_16bits = FALSE;
+#endif
 
         CPU_SPI_Initialize();
 

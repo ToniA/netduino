@@ -140,7 +140,7 @@ HRESULT AT91_USB_Driver::Initialize( int Controller )
                     udp.UDP_CSR[endpointNum] |= AT91_UDP::UDP_EPTYPE_BULK_OUT;
                     break;
                 case 3:
-                    udp.UDP_CSR[endpointNum] |= AT91_UDP::UDP_EPTYPE_ISO_OUT;
+                    udp.UDP_CSR[endpointNum] |= AT91_UDP::UDP_EPTYPE_INT_OUT;
                     break;
             }
         }
@@ -156,7 +156,7 @@ HRESULT AT91_USB_Driver::Initialize( int Controller )
                     udp.UDP_CSR[endpointNum] |= AT91_UDP::UDP_EPTYPE_BULK_IN;
                     break;
                 case 3:
-                    udp.UDP_CSR[endpointNum] |= AT91_UDP::UDP_EPTYPE_ISO_IN;
+                    udp.UDP_CSR[endpointNum] |= AT91_UDP::UDP_EPTYPE_INT_IN;
                     break;
             }
         }
@@ -521,6 +521,18 @@ void AT91_USB_Driver::Endpoint_ISR(UINT32 endpoint)
                 // set stall condition on the default control
                 // endpoint
                 //
+
+                    // added by Secret Labs
+                    {
+                        // set force stall
+                        while(!(udp.UDP_CSR[0] & AT91_UDP::UDP_FORCESTALL)) udp.UDP_CSR[0] |= AT91_UDP::UDP_FORCESTALL;
+                        // wait for USB host to acknowledge stall
+                        while(!(udp.UDP_CSR[0] & AT91_UDP::UDP_STALLSENT));
+        	        // now, clear stall sent and force stall flags
+                        while(udp.UDP_CSR[0] & AT91_UDP::UDP_STALLSENT) udp.UDP_CSR[0] &= ~AT91_UDP::UDP_STALLSENT;
+                        while(udp.UDP_CSR[0] & AT91_UDP::UDP_FORCESTALL) udp.UDP_CSR[0] &= ~AT91_UDP::UDP_FORCESTALL;
+                        //State->DataCallback = NULL; // not sure if this is needed
+                    }
                     break;
 
                 case USB_STATE_STATUS:

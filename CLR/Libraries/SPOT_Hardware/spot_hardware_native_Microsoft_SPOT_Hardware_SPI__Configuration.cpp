@@ -22,6 +22,7 @@ HRESULT Library_spot_hardware_native_Microsoft_SPOT_Hardware_SPI__Configuration:
     nativeConfig.SPI_mod                = config[ FIELD__SPI_mod                ].NumericByRef().u4             ;
     nativeConfig.BusyPin.Pin            = config[ FIELD__BusyPin                ].NumericByRef().u4             ;
     nativeConfig.BusyPin.ActiveState    = config[ FIELD__BusyPin_ActiveState    ].NumericByRef().u1 != 0 ? 1 : 0;
+    nativeConfig.BitsPerTransfer        = config[ FIELD__Custom_BitsPerTransfer ].NumericByRef().u4             ;
 
     TINYCLR_NOCLEANUP();
 }

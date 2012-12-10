@@ -478,7 +478,7 @@ BOOL AT91_GPIO_Driver::EnableInputPin( GPIO_PIN pin, BOOL GlitchFilterEnable, GP
         EnableOutputPin(AT91_GPIO_Driver::PA15, FALSE); // MUX2
         break;
     case 29: // /SWITCH1
-        EnableOutputPin(AT91_GPIO_Driver::PA30, TRUE); // /SW1_CTRL_OF_RESET
+        EnableOutputPin(AT91_GPIO_Driver::PA30, TRUE);  // /SW1_CTRL_OF_RESET
     }
 #endif
 
@@ -492,10 +492,18 @@ BOOL AT91_GPIO_Driver::EnableInputPin( GPIO_PIN pin, BOOL GlitchFilterEnable, GP
     switch (resistorState)
     {
         case RESISTOR_DISABLED:
-            pioX.PIO_PPUDR = bitmask;     // Disable the pull up resistor
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus)
+            // special case: always enable pull up resistor of ONBOARD_SW1 on Netduino and Netduino Plus
+            if( (UINT32)pin == AT91_GPIO_Driver::PA29 )
+                pioX.PIO_PPUER = bitmask;       // Enable the pull up resistor
+            else
+                pioX.PIO_PPUDR = bitmask;       // Disable the pull up resistor
+#else
+            pioX.PIO_PPUDR = bitmask;           // Disable the pull up resistor
+#endif
             break;
         case RESISTOR_PULLUP:
-            pioX.PIO_PPUER =  bitmask;        // Enable the pull up resistor
+            pioX.PIO_PPUER = bitmask;           // Enable the pull up resistor
             break;
         case RESISTOR_PULLDOWN:
             return FALSE;                       // There are no pulldown resistors on the SAM9
@@ -528,12 +536,28 @@ BOOL AT91_GPIO_Driver::EnableInputPin( GPIO_PIN pin, BOOL GlitchFilterEnable, GP
             
             case GPIO_INT_EDGE_LOW :
             case GPIO_INT_LEVEL_LOW:
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus)
+                // special case: reverse logical state of ONBOARD_SW1 on Netduino and Netduino Plus
+                if( (UINT32)pin == AT91_GPIO_Driver::PA29 )
+                    pinIsr.m_status |= PIN_ISR_DESCRIPTOR::c_Status_AllowHighEdge;
+				else
+                    pinIsr.m_status |= PIN_ISR_DESCRIPTOR::c_Status_AllowLowEdge;
+#else
                 pinIsr.m_status |= PIN_ISR_DESCRIPTOR::c_Status_AllowLowEdge;
+#endif
                 break;
 
             case GPIO_INT_EDGE_HIGH:
             case GPIO_INT_LEVEL_HIGH:
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus)
+                // special case: reverse logical state of ONBOARD_SW1 on Netduino and Netduino Plus
+                if( (UINT32)pin == AT91_GPIO_Driver::PA29 )
+                    pinIsr.m_status |= PIN_ISR_DESCRIPTOR::c_Status_AllowLowEdge;
+				else
+                    pinIsr.m_status |= PIN_ISR_DESCRIPTOR::c_Status_AllowHighEdge;
+#else
                 pinIsr.m_status |= PIN_ISR_DESCRIPTOR::c_Status_AllowHighEdge;
+#endif
                 break;
 
             case GPIO_INT_EDGE_BOTH:
@@ -598,7 +622,15 @@ BOOL AT91_GPIO_Driver::GetPinState( GPIO_PIN pin )
 
     AT91_PIO &pioX = AT91::PIO (port);
 
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus)
+    // special case: reverse logical state of ONBOARD_SW1 on Netduino and Netduino Plus
+    if( (UINT32)pin == AT91_GPIO_Driver::PA29 )
+        return (!(((pioX.PIO_PDSR) >> bit) & 1));
+    else
         return (((pioX.PIO_PDSR) >> bit) & 1);
+#else
+    return (((pioX.PIO_PDSR) >> bit) & 1);
+#endif
 }
 
 //--//
@@ -700,7 +732,15 @@ void AT91_GPIO_Driver::ISR( void* Param )
             // send the interrupted state to the higher level
             if(pinIsr.m_flags & PIN_ISR_DESCRIPTOR::c_Flags_Debounce)
             {
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus)
+                // special case: reverse logical state of ONBOARD_SW1 on Netduino and Netduino Plus
+                if( (UINT32)pin == AT91_GPIO_Driver::PA29 )
+                    pinIsr.HandleDebounce( negativeEdge );
+				else
+                    pinIsr.HandleDebounce( !negativeEdge );
+#else
                 pinIsr.HandleDebounce( !negativeEdge );
+#endif
             }
             else
             {
@@ -860,7 +900,15 @@ void AT91_GPIO_Driver::PIN_ISR_DESCRIPTOR::Fire( void* arg )
 {
     PIN_ISR_DESCRIPTOR* desc = (PIN_ISR_DESCRIPTOR*)arg;
         
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus)
+    // special case: reverse logical state of ONBOARD_SW1 on Netduino and Netduino Plus
+    if( (UINT32)desc->m_pin == AT91_GPIO_Driver::PA29 )
+        desc->m_isr( desc->m_pin, (desc->m_status & c_Status_AllowHighEdge) == 0, desc->m_param );
+    else
+        desc->m_isr( desc->m_pin, (desc->m_status & c_Status_AllowHighEdge) != 0, desc->m_param );
+#else
     desc->m_isr( desc->m_pin, (desc->m_status & c_Status_AllowHighEdge) != 0, desc->m_param );
+#endif
 
     if(desc->m_intEdge == GPIO_INT_EDGE_BOTH)
     {

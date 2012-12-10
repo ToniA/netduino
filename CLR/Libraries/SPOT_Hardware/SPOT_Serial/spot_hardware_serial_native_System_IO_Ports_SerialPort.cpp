@@ -1,6 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) Microsoft Corporation.  All rights reserved.
-// Portions Copyright (c) Secret Labs LLC.  All rights reserved.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "SPOT_Hardware_serial.h"
@@ -30,13 +29,6 @@ HRESULT Library_spot_hardware_serial_native_System_IO_Ports_SerialPort::Internal
     config = pThis[ FIELD__m_config ].Dereference(); FAULT_ON_NULL(config);
 
     portId    = config[ Library_spot_hardware_serial_native_System_IO_Ports_SerialPort__Configuration::FIELD__PortIndex ].NumericByRef().u4;
-#if defined(PLATFORM_ARM_NetduinoMini)
-    // On Netduino Mini, swap the assignment of COM1 and COM2
-    if (portId == 0)
-        portId = 1;
-    else if (portId == 1)
-        portId = 0;
-#endif
     speed     = config[ Library_spot_hardware_serial_native_System_IO_Ports_SerialPort__Configuration::FIELD__Speed ]    .NumericByRef().u4;
     parity    = config[ Library_spot_hardware_serial_native_System_IO_Ports_SerialPort__Configuration::FIELD__Parity ]   .NumericByRef().u4;
     dataBits  = config[ Library_spot_hardware_serial_native_System_IO_Ports_SerialPort__Configuration::FIELD__DataBits ] .NumericByRef().u4;
@@ -75,13 +67,6 @@ HRESULT Library_spot_hardware_serial_native_System_IO_Ports_SerialPort::Internal
     config = pThis[ FIELD__m_config ].Dereference(); FAULT_ON_NULL(config);
 
     portId    = config[ Library_spot_hardware_serial_native_System_IO_Ports_SerialPort__Configuration::FIELD__PortIndex ].NumericByRef().u4;
-#if defined(PLATFORM_ARM_NetduinoMini)
-    // On Netduino Mini, swap the assignment of COM1 and COM2
-    if (portId == 0)
-        portId = 1;
-    else if (portId == 1)
-        portId = 0;
-#endif
 
     ::USART_Flush( portId );
     
@@ -130,13 +115,6 @@ HRESULT Library_spot_hardware_serial_native_System_IO_Ports_SerialPort::Read___I
     totLength  = readBuffer->m_numOfElements;
     timeout    = &config[ Library_spot_hardware_serial_native_System_IO_Ports_SerialPort__Configuration::FIELD__ReadTimeout ];
     port       = config[ Library_spot_hardware_serial_native_System_IO_Ports_SerialPort__Configuration::FIELD__PortIndex ].NumericByRef().s4;
-#if defined(PLATFORM_ARM_NetduinoMini)
-    // On Netduino Mini, swap the assignment of COM1 and COM2
-    if (port == 0)
-        port = 1;
-    else if (port == 1)
-        port = 0;
-#endif
 
     //
     // Bound checking.
@@ -260,13 +238,6 @@ HRESULT Library_spot_hardware_serial_native_System_IO_Ports_SerialPort::Write___
     totLength   = writeBuffer->m_numOfElements;
     timeout     = &config[ Library_spot_hardware_serial_native_System_IO_Ports_SerialPort__Configuration::FIELD__WriteTimeout ];
     port        = config[ Library_spot_hardware_serial_native_System_IO_Ports_SerialPort__Configuration::FIELD__PortIndex ].NumericByRef().s4;
-#if defined(PLATFORM_ARM_NetduinoMini)
-    // On Netduino Mini, swap the assignment of COM1 and COM2
-    if (port == 0)
-        port = 1;
-    else if (port == 1)
-        port = 0;
-#endif
 
     //
     // Bound checking.
@@ -357,13 +328,6 @@ HRESULT Library_spot_hardware_serial_native_System_IO_Ports_SerialPort::Internal
     config = pThis[ FIELD__m_config ].Dereference(); FAULT_ON_NULL(config);
 
     portId = config[ Library_spot_hardware_serial_native_System_IO_Ports_SerialPort__Configuration::FIELD__PortIndex ].NumericByRef().u4;
-#if defined(PLATFORM_ARM_NetduinoMini)
-    // On Netduino Mini, swap the assignment of COM1 and COM2
-    if (portId == 0)
-        portId = 1;
-    else if (portId == 1)
-        portId = 0;
-#endif
 
     ::USART_Flush       ( portId );
     ::USART_Uninitialize( portId );
@@ -391,13 +355,6 @@ HRESULT Library_spot_hardware_serial_native_System_IO_Ports_SerialPort::Flush___
     config = pThis[ FIELD__m_config ].Dereference(); FAULT_ON_NULL(config);
 
     portId = config[ Library_spot_hardware_serial_native_System_IO_Ports_SerialPort__Configuration::FIELD__PortIndex ].NumericByRef().u4;
-#if defined(PLATFORM_ARM_NetduinoMini)
-    // On Netduino Mini, swap the assignment of COM1 and COM2
-    if (portId == 0)
-        portId = 1;
-    else if (portId == 1)
-        portId = 0;
-#endif
 
     ::USART_Flush( portId );
 
@@ -427,13 +384,6 @@ HRESULT Library_spot_hardware_serial_native_System_IO_Ports_SerialPort::BytesInB
     fInput = (TRUE == stack.Arg1().NumericByRef().u1);
 
     portId = config[ Library_spot_hardware_serial_native_System_IO_Ports_SerialPort__Configuration::FIELD__PortIndex ].NumericByRef().u4;
-#if defined(PLATFORM_ARM_NetduinoMini)
-    // On Netduino Mini, swap the assignment of COM1 and COM2
-    if (portId == 0)
-        portId = 1;
-    else if (portId == 1)
-        portId = 0;
-#endif
 
     numBytes = USART_BytesInBuffer( portId, fInput );
 
@@ -469,13 +419,6 @@ HRESULT Library_spot_hardware_serial_native_System_IO_Ports_SerialPort::DiscardB
     fInput = (TRUE == stack.Arg1().NumericByRef().u1);
 
     portId = config[ Library_spot_hardware_serial_native_System_IO_Ports_SerialPort__Configuration::FIELD__PortIndex ].NumericByRef().u4;
-#if defined(PLATFORM_ARM_NetduinoMini)
-    // On Netduino Mini, swap the assignment of COM1 and COM2
-    if (portId == 0)
-        portId = 1;
-    else if (portId == 1)
-        portId = 0;
-#endif
 
     USART_DiscardBuffer( portId, fInput );
 

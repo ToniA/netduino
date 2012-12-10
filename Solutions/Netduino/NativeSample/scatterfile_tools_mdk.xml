@@ -12,11 +12,9 @@
     <Set Name="Stack_Top"       Value="0x0001FFF8"/>
 
     <If Name="TARGETLOCATION" In="FLASH">
-        <!-- the TINYCLR and Hal Code should lie in one partition and the other data/LOG/DEPLOYMENT session should sit in another partition, -->
-        <!-- in order to optimized for flash operations while erasing flash that it is still able to implement code from other flash partition -->
         <Set Name="Config_BaseAddress"  Value="0x0017e000"/>
         <Set Name="Config_Size"         Value="0x00002000"/>
-        <Set Name="Code_BaseAddress"    Value="0x0010E000"/>
+        <Set Name="Code_BaseAddress"    Value="0x0010C000"/>
         <Set Name="Code_Size"           Value="%Config_BaseAddress - Code_BaseAddress%"/>
 
         <Set Name="Valid"               Value="true"/>
@@ -27,8 +25,6 @@
     <If Name="Valid" Value="false">
         <Error Message="Configuration not recognized"/>
     </If>
-
-    <!-- the address and sizes for both load regions (LR_*) are chosen to start and completely fill a flash partition in the 28F320W18 flash chip -->
 
     <LoadRegion Name="LR_%TARGETLOCATION%" Base="%Code_BaseAddress%" Options="ABSOLUTE" Size="%Code_Size%">
 
@@ -44,8 +40,6 @@
 
 
         </ExecRegion>
-
-        <!-- skip vector area -->
 
         <ExecRegion Name="ER_RAM_RO" Base="0x00000000" Options="ABSOLUTE" Size="">
 

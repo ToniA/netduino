@@ -84,7 +84,7 @@ bool WaitForTinyBooterUpload( INT32 &timeout_ms )
 
     // user override (SW1 button held)
     Events_WaitForEvents(0,100); // wait for buttons to init
-    if (!CPU_GPIO_GetPinState(AT91_GPIO_Driver::PA29))
+    if (CPU_GPIO_GetPinState(AT91_GPIO_Driver::PA29))
     {                 
         // Turn off the internal LED as sign for the watchdog to be disabled        
         CPU_GPIO_EnableOutputPin(AT91_GPIO_Driver::PB23, false);

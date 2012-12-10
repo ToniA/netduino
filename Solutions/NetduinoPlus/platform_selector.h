@@ -53,10 +53,10 @@
 #define SYSTEM_PERIPHERAL_CLOCK_HZ      SYSTEM_CYCLE_CLOCK_HZ
 #define SYSTEM_CLOCK_HZ                 48000000
 #define CLOCK_COMMON_FACTOR             1000000
-//TClk 5 ( Select MCK/1024)
-#define SLOW_CLOCKS_PER_SECOND          46875
-#define SLOW_CLOCKS_TEN_MHZ_GCD         15625
-#define SLOW_CLOCKS_MILLISECOND_GCD     125
+//TClk 4 ( Select MCK/128)
+#define SLOW_CLOCKS_PER_SECOND        375000
+#define SLOW_CLOCKS_TEN_MHZ_GCD        125000
+#define SLOW_CLOCKS_MILLISECOND_GCD    1000
 
 #define FLASH_MEMORY_Base   0x00100000
 #define FLASH_MEMORY_Size   0x00080000
@@ -76,10 +76,10 @@
 #else
     #define DEFAULT_DEPLOYMENT_PORT    COM1
 #endif
-    #define DEBUG_TEXT_PORT    DEFAULT_DEPLOYMENT_PORT
-    #define STDIO              DEFAULT_DEPLOYMENT_PORT
-    #define DEBUGGER_PORT      DEFAULT_DEPLOYMENT_PORT
-    #define MESSAGING_PORT     DEFAULT_DEPLOYMENT_PORT
+    #define DEBUG_TEXT_PORT    USB1
+    #define STDIO              USB1
+    #define DEBUGGER_PORT      USB1
+    #define MESSAGING_PORT     USB1
 
 //
 // constants

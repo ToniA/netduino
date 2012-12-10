@@ -94,6 +94,7 @@ struct Library_spot_hardware_native_Microsoft_SPOT_Hardware_SPI__Configuration
     static const int FIELD__SPI_mod = 8;
     static const int FIELD__BusyPin = 9;
     static const int FIELD__BusyPin_ActiveState = 10;
+    static const int FIELD__Custom_BitsPerTransfer = 11;
 
     //--//
         
@@ -145,6 +146,8 @@ struct Library_spot_hardware_native_Microsoft_SPOT_EventSink__EventInfo
 struct Library_spot_hardware_native_Microsoft_SPOT_Hardware_I2CDevice__I2CTransaction
 {
     static const int FIELD__Buffer = 1;
+    static const int FIELD__InternalAddressSize = 2;
+    static const int FIELD__InternalAddress = 3;
 
 
     //--//

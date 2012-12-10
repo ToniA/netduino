@@ -847,14 +847,6 @@ void USART_Driver::SetEvent( int ComPortNum, unsigned int event )
     {
         GLOBAL_LOCK(irq);
         
-#if defined(PLATFORM_ARM_NetduinoMini)
-    // On Netduino Mini, swap the assignment of COM1 and COM2
-    if (ComPortNum == 0)
-        ComPortNum = 1;
-    else if (ComPortNum == 1)
-        ComPortNum = 0;
-#endif
-
         HAL_USART_STATE& State = Hal_Usart_State[ComPortNum];
 
         // Inorder to reduce the number of methods, we combine Error events and Data events in native code

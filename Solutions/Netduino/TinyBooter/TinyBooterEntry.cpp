@@ -84,7 +84,7 @@ bool WaitForTinyBooterUpload( INT32 &timeout_ms )
 
     // user override (SW1 button held)
     Events_WaitForEvents(0,100); // wait for buttons to init
-    if (!CPU_GPIO_GetPinState(AT91_GPIO_Driver::PA29))
+    if (CPU_GPIO_GetPinState(AT91_GPIO_Driver::PA29))
     {
         timeout_ms = 5000;
         enterBooterMode = true;
