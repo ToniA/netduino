@@ -139,10 +139,11 @@ SOCK_SOCKET LWIP_SOCKETS_Driver::Socket(int family, int type, int protocol)
         case SOCK_IPPROTO_ICMP:
             protocol = IP_PROTO_ICMP;
             break;
-
+#if LWIP_IGMP
         case SOCK_IPPROTO_IGMP:
             protocol = IP_PROTO_IGMP;
             break;
+#endif
     }
     
     return lwip_socket(family, type, protocol);

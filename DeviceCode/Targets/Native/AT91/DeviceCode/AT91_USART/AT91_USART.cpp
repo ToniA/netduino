@@ -1,9 +1,16 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) Microsoft Corporation.  All rights reserved.
+// Portions Copyright (c) Secret Labs LLC.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include <tinyhal.h>
 #include "AT91_USART.h"
+#if defined(PLATFORM_ARM_NetduinoMini)
+#else
+#if !defined(HAL_REDUCESIZE)
+#include "SPOT_Hardware.h"
+#endif
+#endif
 
 //--//
 
@@ -30,7 +37,22 @@ BOOL AT91_USART_Driver::Initialize( int comPort, int BaudRate, int Parity, int D
     AT91_USART &usart = AT91::USART(comPort);
 
 
-    if( comPort == 0)
+#if defined(PLATFORM_ARM_NetduinoMini)
+    // On Netduino Mini, swap the assignment of COM1 and COM2
+    if( comPort == 0 )
+    {
+        UsartId = (AT91C_ID_US0);
+    }
+    else if( comPort == 1 )
+    {
+        UsartId = (AT91C_ID_SYS);  
+    }
+    else
+    {
+        UsartId = (AT91C_ID_US0 +  (comPort - 1));
+    }
+#else
+    if( comPort == 0 )
     {
         UsartId = (AT91C_ID_SYS);
     }
@@ -38,6 +60,7 @@ BOOL AT91_USART_Driver::Initialize( int comPort, int BaudRate, int Parity, int D
     {
         UsartId = (AT91C_ID_US0 +  (comPort - 1));
     }
+#endif
 
     // Disable interrupts
     usart.US_IDR = (unsigned int) -1;
@@ -149,10 +172,20 @@ BOOL AT91_USART_Driver::Uninitialize( int comPort )
     
     GLOBAL_LOCK(irq);
 
-    if( comPort == 0)
+#if defined(PLATFORM_ARM_NetduinoMini)
+    // On Netduino Mini, swap the assignment of COM1 and COM2
+    if( comPort == 0 )
+        UsartId = (AT91C_ID_US0);
+    else if( comPort == 1)
+        UsartId = (AT91C_ID_SYS);  
+    else
+        UsartId = (AT91C_ID_US0 +  (comPort - 1));
+#else
+    if( comPort == 0 )
         UsartId = (AT91C_ID_SYS);
     else
         UsartId = (AT91C_ID_US0 +  (comPort - 1));
+#endif
 
     // uninits GPIO pins
     ProtectPins( comPort, TRUE );
@@ -394,6 +427,36 @@ void AT91_USART_Driver::USART_ISR( void* param )
     char c;
     UINT32 Status;  
 
+#if defined(PLATFORM_ARM_NetduinoMini)
+#else
+	// NOTE: SAM7X shares the system peripheral IRQ with the reset interrupt, DGBU interrupt, and other interrupts.
+
+    // when the NRST pin is asserted, emulate a hardware reset using our software reboot feature.
+	// this is required for compatibility with the NETMF WINSUB drivers combined with a permanent pullup on USB D+
+#if !defined(HAL_REDUCESIZE)
+    if ((*(volatile UINT32 *)AT91C_BASE_RSTC_MR) & AT91C_RSTC_MR__URSTIEN)
+	{
+	    // reset button pressed
+		Status = (*(volatile UINT32 *)AT91C_BASE_RSTC_SR);
+		// check to see if NSRT has been asserted
+		if (Status & AT91C_RTSC_SR__URSTS)
+		{		
+			// disable RESET IRQ
+		    (*(volatile UINT32 *)AT91C_BASE_RSTC_MR) &= ~AT91C_RSTC_MR__URSTIEN;
+
+			// turn on LED
+	        AT91_GPIO_Driver::EnableOutputPin(AT91_GPIO_Driver::PB23, TRUE); // ONBOARD_LED
+
+			// wait for NRST to be released
+			while (!((*(volatile UINT32 *)AT91C_BASE_RSTC_SR) & AT91C_RTSC_SR__NRSTL)) {;}
+
+		    // soft reboot
+			g_CLR_RT_ExecutionEngine.Reboot( FALSE );
+		}
+	}
+#endif
+#endif
+
     Status = usart.US_CSR;
     if(Status & AT91_USART::US_RXRDY)
     {
@@ -438,13 +501,25 @@ void AT91_USART_Driver::ProtectPins( int comPort, BOOL on )
     switch(comPort)
     {
         case 0:
+#if defined(PLATFORM_ARM_NetduinoMini)
+            // On Netduino Mini, swap the assignment of COM1 and COM2
+            SER_RDX = AT91_RXD0;
+            SER_TDX = AT91_TXD0;
+#else
             SER_RDX = AT91_DRXD;
             SER_TDX = AT91_DTXD;
+#endif
             break;
 #if ( AT91_MAX_USART > 1)                    
         case 1:
+#if defined(PLATFORM_ARM_NetduinoMini)
+            // On Netduino Mini, swap the assignment of COM1 and COM2
+            SER_RDX = AT91_DRXD;
+            SER_TDX = AT91_DTXD;
+#else
             SER_RDX = AT91_RXD0;
             SER_TDX = AT91_TXD0;
+#endif
             break;
 #endif
 #if ( AT91_MAX_USART > 2)            
@@ -488,17 +563,33 @@ void AT91_USART_Driver::GetPins(int comPort, GPIO_PIN& rxPin, GPIO_PIN& txPin, G
     switch(comPort)
     {
         case 0:
+#if defined(PLATFORM_ARM_NetduinoMini)
+            // On Netduino Mini, swap the assignment of COM1 and COM2
+            rxPin =  (GPIO_PIN)AT91_RXD0;
+            txPin =  (GPIO_PIN)AT91_TXD0;
+            ctsPin = GPIO_PIN_NONE;
+            rtsPin = GPIO_PIN_NONE;            
+#else
             rxPin  = (GPIO_PIN)AT91_DRXD;
             txPin  = (GPIO_PIN)AT91_DTXD;
             ctsPin = GPIO_PIN_NONE;
             rtsPin = GPIO_PIN_NONE;
+#endif
              break;
 #if ( AT91_MAX_USART > 1)                    
         case 1:
+#if defined(PLATFORM_ARM_NetduinoMini)
+            // On Netduino Mini, swap the assignment of COM1 and COM2
+            rxPin  = (GPIO_PIN)AT91_DRXD;
+            txPin  = (GPIO_PIN)AT91_DTXD;
+            ctsPin = GPIO_PIN_NONE;
+            rtsPin = GPIO_PIN_NONE;
+#else
             rxPin =  (GPIO_PIN)AT91_RXD0;
             txPin =  (GPIO_PIN)AT91_TXD0;
             ctsPin = (GPIO_PIN)AT91_CTS0;
             rtsPin = (GPIO_PIN)AT91_RTS0;            
+#endif
              break;
 #endif
 #if ( AT91_MAX_USART > 2)            

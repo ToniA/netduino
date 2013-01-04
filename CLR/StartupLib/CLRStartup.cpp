@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) Microsoft Corporation.  All rights reserved.
+// Portions Copyright (c) Secret Labs LLC.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "CLRStartup.h"
@@ -658,6 +659,35 @@ void ClrStartup( CLR_SETTINGS params )
             {
 #if !defined(BUILD_RTM)
                 CLR_Debug::Printf( "Ready.\r\n" );
+#endif
+
+#if defined(PLATFORM_ARM_NetduinoGo)
+        // turn off socket LEDs when TinyCLR has booted
+        CPU_GPIO_EnableOutputPin(22, FALSE); // LED_SOCKET1
+        CPU_GPIO_EnableOutputPin(23, FALSE); // LED_SOCKET2
+        CPU_GPIO_EnableOutputPin(24, FALSE); // LED_SOCKET3
+        CPU_GPIO_EnableOutputPin(25, FALSE); // LED_SOCKET4
+        CPU_GPIO_EnableOutputPin(38, FALSE); // LED_SOCKET5
+        CPU_GPIO_EnableOutputPin(39, FALSE); // LED_SOCKET6
+        CPU_GPIO_EnableOutputPin(40, FALSE); // LED_SOCKET7
+        CPU_GPIO_EnableOutputPin(41, FALSE); // LED_SOCKET8 // turn on to illustrate networking socket
+		
+	    // enable SW1 to act as a GPIO by default
+        CPU_GPIO_EnableOutputPin(47, TRUE); // /SW1_CTRL_OF_RESET: SW1 should not default to /NRST
+#elif defined(PLATFORM_ARM_NetduinoShieldBase)
+        // optionally...turn on power headers automatically (important if we're debugging/deploying via COM1 on pins D0/D1)
+        CPU_GPIO_EnableOutputPin(18, TRUE); // PB2: CONTROL_OF_POWER_HEADERS
+#elif defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus)
+        // turn off LED when TinyCLR has booted
+        AT91_GPIO_Driver::EnableOutputPin(AT91_GPIO_Driver::PB23, FALSE); // ONBOARD_LED
+
+        // enable AD4/AD5 as I2C TWD/TWCK
+        AT91_GPIO_Driver::EnableOutputPin(AT91_GPIO_Driver::PA14, FALSE); // MUX1: AD4 should default to I2C TWD
+        AT91_GPIO_Driver::EnableOutputPin(AT91_GPIO_Driver::PA15, FALSE); // MUX2: AD5 should default to I2C TWCK
+	    // enable SW1 to act as a RESET button by default
+        AT91_GPIO_Driver::EnableOutputPin(AT91_GPIO_Driver::PA30, FALSE); // /SW1_CTRL_OF_RESET: SW1 should default to /NRST
+	    // enable internal AREF by default
+		AT91_GPIO_Driver::EnableOutputPin(AT91_GPIO_Driver::PB24, TRUE);  // AREF_SOURCE_CTRL: use onboard analog reference by default
 #endif
 
 #if defined(PLATFORM_WINDOWS)

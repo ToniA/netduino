@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) Microsoft Corporation.  All rights reserved.
+// Portions Copyright (c) Secret Labs LLC.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "..\Core.h"
@@ -45,7 +46,11 @@ HRESULT CLR_RT_HeapBlock_I2CXAction::PrepareXAction( I2C_USER_CONFIGURATION& con
     TINYCLR_FEATURE_STUB_RETURN();
 }
 
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus) || defined(PLATFORM_ARM_NetduinoMini)
+HRESULT CLR_RT_HeapBlock_I2CXAction::PrepareXActionUnit( CLR_UINT8* src, size_t length, size_t unit, bool fRead, CLR_UINT8 internalAddressSize, CLR_UINT32 internalAddress )
+#else
 HRESULT CLR_RT_HeapBlock_I2CXAction::PrepareXActionUnit( CLR_UINT8* src, size_t length, size_t unit, bool fRead )
+#endif
 {
     NATIVE_PROFILE_CLR_I2C();
     TINYCLR_FEATURE_STUB_RETURN();

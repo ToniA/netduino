@@ -1,3 +1,4 @@
+/* Portions Copyright (c) Secret Labs LLC. */
 /**
  * @file
  * Dynamic Host Configuration Protocol client
@@ -250,6 +251,7 @@ dhcp_select(struct netif *netif)
   struct dhcp *dhcp = netif->dhcp;
   err_t result;
   u16_t msecs;
+  int i;
   //[MS_CHANGE] - this option is set by the NetMF network configuration
   u8_t dynamicDns = 0 != (netif->flags & NETIF_FLAG_DYNAMIC_DNS);
 #if LWIP_NETIF_HOSTNAME
@@ -284,6 +286,15 @@ dhcp_select(struct netif *netif)
     if(dynamicDns)
     {
         dhcp_option_byte(dhcp, DHCP_OPTION_DNS_SERVER);
+    }
+
+    // [SL_CHANGE] - ClientId should be consistent in both Discover and Request packets
+    // [MS_CHANGE] - Add ClientId option required for MS DHCP network
+    dhcp_option(dhcp, DHCP_OPTION_CLIENT_ID, 1 + netif->hwaddr_len);
+    dhcp_option_byte(dhcp, 1                    ); //type - HardwareAddress
+    for(i=0; i<netif->hwaddr_len; i++)
+    {
+        dhcp_option_byte(dhcp, netif->hwaddr[i]);
     }
 
 #if LWIP_NETIF_HOSTNAME

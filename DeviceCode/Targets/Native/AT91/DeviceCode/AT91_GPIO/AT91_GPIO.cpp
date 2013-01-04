@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) Microsoft Corporation.  All rights reserved.
+// Portions Copyright (c) Secret Labs LLC.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include <tinyhal.h>
@@ -35,7 +36,11 @@ const UINT8 __section(rodata) AT91_GPIO_Driver::c_Gpio_Attributes[AT91_GPIO_Driv
     GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  10
     GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  11
     GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  12
+#if defined(PLATFORM_ARM_NetduinoPlus)
+    GPIO_ATTRIBUTE_INPUT                        , //  13 // special case: SD RSV on Netduino Plus
+#else
     GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  13
+#endif
     GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  14
     GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  15
     GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  16
@@ -51,7 +56,13 @@ const UINT8 __section(rodata) AT91_GPIO_Driver::c_Gpio_Attributes[AT91_GPIO_Driv
     GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  26
     GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  27
     GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  28
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus)
+    GPIO_ATTRIBUTE_INPUT                        , //  29 // special case: /SWITCH1 (connected through to RESET) on Netduino/Netduino Plus
+#elif defined(PLATFORM_ARM_NetduinoMini)
+    GPIO_ATTRIBUTE_INPUT                        , //  29 // special case: /DTR_SCALED_MCU on Netduino Mini
+#else
     GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  29
+#endif
     GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  30
     GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  31
 #if (AT91_MAX_GPIO > 32)
@@ -80,7 +91,11 @@ const UINT8 __section(rodata) AT91_GPIO_Driver::c_Gpio_Attributes[AT91_GPIO_Driv
     GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  54
     GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  55
     GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  56
+#if defined(PLATFORM_ARM_NetduinoPlus)
+    GPIO_ATTRIBUTE_INPUT                        , //  57 // special case: /MICRO_SD_CARD_INSERTED on Netduino Plus
+#else
     GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  57
+#endif
     GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  58
     GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  59
     GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  60
@@ -348,6 +363,21 @@ void AT91_GPIO_Driver::DisablePin( GPIO_PIN pin, GPIO_RESISTOR resistorState, UI
 {
     ASSERT(pin < c_MaxPins);
 
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus)
+    // special case: automatically set MUX1/MUX2 to ENABLED outputs with TWD/TWCK to activate them; they were previously reserved in ReservePin.
+    switch ((UINT32)pin)
+    {
+    case 10: // TWD
+        EnableOutputPin(AT91_GPIO_Driver::PA14, FALSE); // MUX1: AD4 should default to I2C TWD
+        break;
+    case 11: // TWCK
+        EnableOutputPin(AT91_GPIO_Driver::PA15, FALSE); // MUX2: AD5 should default to I2C TWCK
+        break;
+    case 29: // /SWITCH1
+        EnableOutputPin(AT91_GPIO_Driver::PA30, FALSE); // /SW1_CTRL_OF_RESET: SW1 should default to /NRST
+    }
+#endif
+
     UINT32  bitmask = 1 << PinToBit ( pin );
     UINT32  port = PinToPort( pin );
 
@@ -392,7 +422,18 @@ void AT91_GPIO_Driver::DisablePin( GPIO_PIN pin, GPIO_RESISTOR resistorState, UI
 
 void AT91_GPIO_Driver::EnableOutputPin( GPIO_PIN pin, BOOL initialState )
 {
-
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus)
+    // special case: automatically set MUX1/MUX2 to ENABLED outputs with TWD/TWCK to activate them; they were previously reserved in ReservePin.
+    switch ((UINT32)pin)
+    {
+    case 10: // TWD
+        EnableOutputPin(AT91_GPIO_Driver::PA14, FALSE); // MUX1
+        break;
+    case 11: // TWCK
+        EnableOutputPin(AT91_GPIO_Driver::PA15, FALSE); // MUX2
+        break;
+    }
+#endif
     
     UINT32   bitmask  = 1 << PinToBit( pin );
     UINT32  port = PinToPort( pin );
@@ -425,6 +466,20 @@ BOOL AT91_GPIO_Driver::EnableInputPin( GPIO_PIN pin, BOOL GlitchFilterEnable, GP
 {
     ASSERT(pin < c_MaxPins);
 
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus)
+    // special case: automatically set MUX1/MUX2 to ENABLED outputs with TWD/TWCK to activate them; they were previously reserved in ReservePin.
+    switch ((UINT32)pin)
+    {
+    case 10: // TWD
+        EnableOutputPin(AT91_GPIO_Driver::PA14, FALSE); // MUX1
+        break;
+    case 11: // TWCK
+        EnableOutputPin(AT91_GPIO_Driver::PA15, FALSE); // MUX2
+        break;
+    case 29: // /SWITCH1
+        EnableOutputPin(AT91_GPIO_Driver::PA30, TRUE);  // /SW1_CTRL_OF_RESET
+    }
+#endif
 
     UINT32   bitmask  = 1 << PinToBit( pin );
     UINT32  port = PinToPort( pin );
@@ -436,10 +491,18 @@ BOOL AT91_GPIO_Driver::EnableInputPin( GPIO_PIN pin, BOOL GlitchFilterEnable, GP
     switch (resistorState)
     {
         case RESISTOR_DISABLED:
-            pioX.PIO_PPUDR = bitmask;     // Disable the pull up resistor
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus)
+            // special case: always enable pull up resistor of ONBOARD_SW1 on Netduino and Netduino Plus
+            if( (UINT32)pin == AT91_GPIO_Driver::PA29 )
+                pioX.PIO_PPUER = bitmask;       // Enable the pull up resistor
+            else
+                pioX.PIO_PPUDR = bitmask;       // Disable the pull up resistor
+#else
+            pioX.PIO_PPUDR = bitmask;           // Disable the pull up resistor
+#endif
             break;
         case RESISTOR_PULLUP:
-            pioX.PIO_PPUER =  bitmask;        // Enable the pull up resistor
+            pioX.PIO_PPUER = bitmask;           // Enable the pull up resistor
             break;
         case RESISTOR_PULLDOWN:
             return FALSE;                       // There are no pulldown resistors on the SAM9
@@ -472,12 +535,28 @@ BOOL AT91_GPIO_Driver::EnableInputPin( GPIO_PIN pin, BOOL GlitchFilterEnable, GP
             
             case GPIO_INT_EDGE_LOW :
             case GPIO_INT_LEVEL_LOW:
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus)
+                // special case: reverse logical state of ONBOARD_SW1 on Netduino and Netduino Plus
+                if( (UINT32)pin == AT91_GPIO_Driver::PA29 )
+                    pinIsr.m_status |= PIN_ISR_DESCRIPTOR::c_Status_AllowHighEdge;
+				else
+                    pinIsr.m_status |= PIN_ISR_DESCRIPTOR::c_Status_AllowLowEdge;
+#else
                 pinIsr.m_status |= PIN_ISR_DESCRIPTOR::c_Status_AllowLowEdge;
+#endif
                 break;
 
             case GPIO_INT_EDGE_HIGH:
             case GPIO_INT_LEVEL_HIGH:
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus)
+                // special case: reverse logical state of ONBOARD_SW1 on Netduino and Netduino Plus
+                if( (UINT32)pin == AT91_GPIO_Driver::PA29 )
+                    pinIsr.m_status |= PIN_ISR_DESCRIPTOR::c_Status_AllowLowEdge;
+				else
+                    pinIsr.m_status |= PIN_ISR_DESCRIPTOR::c_Status_AllowHighEdge;
+#else
                 pinIsr.m_status |= PIN_ISR_DESCRIPTOR::c_Status_AllowHighEdge;
+#endif
                 break;
 
             case GPIO_INT_EDGE_BOTH:
@@ -542,7 +621,15 @@ BOOL AT91_GPIO_Driver::GetPinState( GPIO_PIN pin )
 
     AT91_PIO &pioX = AT91::PIO (port);
 
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus)
+    // special case: reverse logical state of ONBOARD_SW1 on Netduino and Netduino Plus
+    if( (UINT32)pin == AT91_GPIO_Driver::PA29 )
+        return (!(((pioX.PIO_PDSR) >> bit) & 1));
+    else
         return (((pioX.PIO_PDSR) >> bit) & 1);
+#else
+    return (((pioX.PIO_PDSR) >> bit) & 1);
+#endif
 }
 
 //--//
@@ -644,7 +731,15 @@ void AT91_GPIO_Driver::ISR( void* Param )
             // send the interrupted state to the higher level
             if(pinIsr.m_flags & PIN_ISR_DESCRIPTOR::c_Flags_Debounce)
             {
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus)
+                // special case: reverse logical state of ONBOARD_SW1 on Netduino and Netduino Plus
+                if( (UINT32)pin == AT91_GPIO_Driver::PA29 )
+                    pinIsr.HandleDebounce( negativeEdge );
+				else
+                    pinIsr.HandleDebounce( !negativeEdge );
+#else
                 pinIsr.HandleDebounce( !negativeEdge );
+#endif
             }
             else
             {
@@ -697,9 +792,48 @@ BOOL AT91_GPIO_Driver::PinIsBusy( GPIO_PIN pin )
 
 //--//
 
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus) || defined(PLATFORM_ARM_NetduinoMini) || defined(PLATFORM_ARM_NetduinoGo) || defined(PLATFORM_ARM_NetduinoShieldBase)
+// NOTE: we may want to move this code to the ADC source file.
+ANALOG_CHANNEL AD_GetChannelForPin( GPIO_PIN pin )
+{
+    if ((UINT32)pin >= 59 && (UINT32)pin <= 62)
+    {
+        // AD0-AD3 (peripheral B on pins PB27-PB30)
+        return (ANALOG_CHANNEL)(pin - 59);
+    }
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus)
+    else if ((UINT32)pin >= 10 && (UINT32)pin <= 11)
+    {
+        // AD4-AD5 (multiplexed externally to MCU with TWD/TWCK)
+        return (ANALOG_CHANNEL)(pin - 6);
+    }
+#endif
+    else
+    {
+        return ANALOG_CHANNEL_NONE;
+    }
+}
+#endif
+
 BOOL AT91_GPIO_Driver::ReservePin( GPIO_PIN pin, BOOL fReserve )
 {
     GLOBAL_LOCK(irq);
+
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus) || defined(PLATFORM_ARM_NetduinoMini) || defined(PLATFORM_ARM_NetduinoGo) || defined(PLATFORM_ARM_NetduinoShieldBase)
+    // NOTE: we should really have a "DeactiveChannel" method in the ADC code, called by AnalogInput.Dispose(bool) instead.
+    if (!fReserve)
+	{
+	    ANALOG_CHANNEL channel = AD_GetChannelForPin( pin );
+	
+	    if (channel != ANALOG_CHANNEL_NONE)
+		{
+		    AT91_ADC& ADC = AT91::ADC();
+		    // if we are unreserving this pin and it's an enabled analog channel, make sure that we also disable its analog channel	
+	    	if (ADC.ADC_CHSR & (1 << (UINT32)channel))
+	        	ADC.ADC_CHDR = (1 << (UINT32)channel);
+		}
+	}
+#endif
 
     UINT32  port = pin / c_PinsPerPort;
     UINT32  bit  = PinToBit( pin );
@@ -707,6 +841,29 @@ BOOL AT91_GPIO_Driver::ReservePin( GPIO_PIN pin, BOOL fReserve )
     UINT32  mask = (fReserve ? 1u : 0u) << bit;
 
     if((res & (1u << bit)) == mask) return FALSE;
+
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus)
+    // special case: automatically reserve MUX1/MUX2 with TWD/TWCK to ensure that AD4/AD5 are not used simultaneously.
+    // (or in the case of reserving /SWITCH1, drive pin /SW1_CTRL_OF_RESET low to enable software GPIO)
+    BOOL muxReserved = FALSE;
+    switch ((UINT32)pin)
+    {
+    case 10: // TWD
+        muxReserved = ReservePin(AT91_GPIO_Driver::PA14, fReserve); // MUX1
+        if (!muxReserved) return FALSE;
+        SetPinState(AT91_GPIO_Driver::PA14, FALSE); // deactivate MUX1 (switch to I2C GPIO)
+        break;
+    case 11: // TWCK
+        muxReserved = ReservePin(AT91_GPIO_Driver::PA15, fReserve); // MUX2
+        if (!muxReserved) return FALSE;
+        SetPinState(AT91_GPIO_Driver::PA15, FALSE); // deactivate MUX2 (switch to I2C GPIO)
+        break;
+    case 29: // /SWITCH1
+        muxReserved = ReservePin(AT91_GPIO_Driver::PA30, fReserve); // /SW1_CTRL_OF_RESET
+        if (!muxReserved) return FALSE;
+	break;
+    }
+#endif
 
     if(fReserve)
     {
@@ -783,7 +940,15 @@ void AT91_GPIO_Driver::PIN_ISR_DESCRIPTOR::Fire( void* arg )
 {
     PIN_ISR_DESCRIPTOR* desc = (PIN_ISR_DESCRIPTOR*)arg;
         
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus)
+    // special case: reverse logical state of ONBOARD_SW1 on Netduino and Netduino Plus
+    if( (UINT32)desc->m_pin == AT91_GPIO_Driver::PA29 )
+        desc->m_isr( desc->m_pin, (desc->m_status & c_Status_AllowHighEdge) == 0, desc->m_param );
+    else
+        desc->m_isr( desc->m_pin, (desc->m_status & c_Status_AllowHighEdge) != 0, desc->m_param );
+#else
     desc->m_isr( desc->m_pin, (desc->m_status & c_Status_AllowHighEdge) != 0, desc->m_param );
+#endif
 
     if(desc->m_intEdge == GPIO_INT_EDGE_BOTH)
     {
@@ -823,8 +988,8 @@ void AT91_GPIO_Driver::PIN_ISR_DESCRIPTOR::HandleDebounce( BOOL edge )
 
     UINT32 count = c_DebounceCount;
 
-    // we implement debouce by reading the pin a finite number of times
-    while(--count > 0)
+    // we implement debounce by reading the pin a finite number of times
+    while(count-- > 0)
     {
         if(GetPinState( m_pin ) != edge)
         {

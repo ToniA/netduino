@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) Microsoft Corporation.  All rights reserved.
+// Portions Copyright (c) Secret Labs LLC.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifndef _USART_H_
@@ -31,6 +32,10 @@ struct USART_Driver
 
     static int  BytesInBuffer( int ComPortNum, BOOL fRx );
     static void DiscardBuffer( int ComPortNum, BOOL fRx );
+
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus) || defined(PLATFORM_ARM_NetduinoMini) || defined(PLATFORM_ARM_NetduinoGo) || defined(PLATFORM_ARM_NetduinoShieldBase)
+    static void SetDataEventRaised( int ComPortNum );
+#endif
 
     static BOOL ConnectEventSink( int ComPortNum, int EventType, void *pContext, PFNUsartEvent pfnUsartEvtHandler, void **ppArg );
     static void SetEvent( int ComPortNum, unsigned int event );

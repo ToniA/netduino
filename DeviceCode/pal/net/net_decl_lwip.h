@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) Microsoft Corporation.  All rights reserved.
+// Portions Copyright (c) Secret Labs LLC.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifndef _NET_DECL_LWIP_H_
@@ -155,7 +156,11 @@
 /* Define IP_FORWARD to 1 if you wish to have the ability to forward
    IP packets across network interfaces. If you are going to run lwIP
    on a device with only one network interface, define this to 0. */
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus) || defined(PLATFORM_ARM_NetduinoMini) || defined(PLATFORM_ARM_NetduinoGo)
+#define IP_FORWARD              0
+#else
 #define IP_FORWARD              1
+#endif
 
 /* If defined to 1, IP options are allowed (but not parsed). If
    defined to 0, all packets with IP options are dropped. */
@@ -176,7 +181,11 @@
 
 /* 1 if you want to do an ARP check on the offered address
    (recommended). */
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus) || defined(PLATFORM_ARM_NetduinoMini) || defined(PLATFORM_ARM_NetduinoGo)
+#define DHCP_DOES_ARP_CHECK     1
+#else
 #define DHCP_DOES_ARP_CHECK     0
+#endif
 
 /* ---------- UDP options ---------- */
 #define LWIP_UDP                1
@@ -198,7 +207,11 @@
 
 /* ---------- SNMP options ---------- */
 #define LWIP_SNMP               0 /*LwIP 1.2.0*/
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus) || defined(PLATFORM_ARM_NetduinoMini) || defined(PLATFORM_ARM_NetduinoGo)
+#define LWIP_IGMP               0 /*LwIP 1.2.0*/
+#else
 #define LWIP_IGMP               1 /*LwIP 1.2.0*/
+#endif
 
 // thread priorities are in VDK terms - 1 is highest, 30 is lowest
 #define TCPIP_THREAD_PRIO       5

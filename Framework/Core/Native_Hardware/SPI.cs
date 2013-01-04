@@ -1,3 +1,4 @@
+// Portions Copyright (c) Secret Labs LLC.
 using System;
 using System.Runtime.CompilerServices;
 
@@ -25,6 +26,8 @@ namespace Microsoft.SPOT.Hardware
             public readonly SPI_module SPI_mod;
             public readonly Cpu.Pin BusyPin;
             public readonly bool    BusyPin_ActiveState;
+
+            protected readonly uint Custom_BitsPerTransfer;
 
             public Configuration(
                                   Cpu.Pin ChipSelect_Port,
@@ -74,6 +77,7 @@ namespace Microsoft.SPOT.Hardware
                 this.SPI_mod = SPI_mod;
                 this.BusyPin = BusyPin;
                 this.BusyPin_ActiveState = BusyPin_ActiveState;
+                this.Custom_BitsPerTransfer = 0; // 0 means "no custom bits per transfer specified"
             }
         }
 

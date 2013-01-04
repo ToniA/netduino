@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) Microsoft Corporation.  All rights reserved.
+// Portions Copyright (c) Secret Labs LLC.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifndef _TINYCLR_RUNTIME__HEAPBLOCK_H_
@@ -2485,7 +2486,11 @@ struct CLR_RT_HeapBlock_I2CXAction : public CLR_RT_ObjectToEvent_Destination // 
 
     HRESULT AllocateXAction   ( CLR_UINT32 numXActionsUnits                               );
     HRESULT PrepareXAction    ( I2C_USER_CONFIGURATION& config, size_t numXActionUnits    );
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus) || defined(PLATFORM_ARM_NetduinoMini)
+    HRESULT PrepareXActionUnit( CLR_UINT8* buffer, size_t length, size_t unit, bool fRead, UINT8 internalAddressSize, UINT32 internalAddress );
+#else
     HRESULT PrepareXActionUnit( CLR_UINT8* buffer, size_t length, size_t unit, bool fRead );
+#endif
     void    CopyBuffer        ( CLR_UINT8* dst   , size_t length, size_t unit             );
     void    ReleaseBuffers    (                                                           );
     

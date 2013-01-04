@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) Microsoft Corporation.  All rights reserved.
+// Portions Copyright (c) Secret Labs LLC.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifndef _DRIVERS_NETWORK_DEFINES_LWIP_H_
@@ -33,7 +34,11 @@ been taken from lwiopts.small.h, lwipopts.h and lwipopts.big.h */
 
 /* MEM_SIZE: the size of the heap memory. If the application will send
 a lot of data that needs to be copied, this should be set high. */
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus) || defined(PLATFORM_ARM_NetduinoMini) || defined(PLATFORM_ARM_NetduinoGo)
+#define MEM_SIZE__min                       (10*1024)
+#else
 #define MEM_SIZE__min                       (16*1024)
+#endif
 #define MEM_SIZE__default                   (64*1024)
 #define MEM_SIZE__max                       (1024*1024)  // TODO - this seems a bit extreme
 
@@ -75,7 +80,11 @@ a lot of data that needs to be copied, this should be set high. */
 #define MEMP_NUM_SYS_TIMEOUT__max           16
 
 /* MEMP_NUM_NETBUF: the number of struct netbufs. */
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus) || defined(PLATFORM_ARM_NetduinoMini) || defined(PLATFORM_ARM_NetduinoGo)
+#define MEMP_NUM_NETBUF__min                6
+#else
 #define MEMP_NUM_NETBUF__min                8
+#endif
 #define MEMP_NUM_NETBUF__default            16
 #define MEMP_NUM_NETBUF__max                32
 
@@ -85,13 +94,25 @@ a lot of data that needs to be copied, this should be set high. */
 #define MEMP_NUM_NETCONN__max               40
 
 /* PBUF_POOL_SIZE: the number of buffers in the pbuf pool. */
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus) || defined(PLATFORM_ARM_NetduinoMini) || defined(PLATFORM_ARM_NetduinoGo)
+#define PBUF_POOL_SIZE__min                 16
+#else
 #define PBUF_POOL_SIZE__min                 40
+#endif
 #define PBUF_POOL_SIZE__default             128
 #define PBUF_POOL_SIZE__max                 128
 
 /* PBUF_POOL_BUFSIZE: the size of each pbuf in the pbuf pool. */
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus) || defined(PLATFORM_ARM_NetduinoMini) || defined(PLATFORM_ARM_NetduinoGo)
+#define PBUF_POOL_BUFSIZE__min              128
+#else
 #define PBUF_POOL_BUFSIZE__min              512
+#endif
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus) || defined(PLATFORM_ARM_NetduinoMini) || defined(PLATFORM_ARM_NetduinoGo)
+#define PBUF_POOL_BUFSIZE__default          512
+#else
 #define PBUF_POOL_BUFSIZE__default          1024
+#endif
 #define PBUF_POOL_BUFSIZE__max              2048
 
 /* TCP Maximum segment size. */
@@ -111,7 +132,11 @@ a lot of data that needs to be copied, this should be set high. */
 #define TCP_SND_QUEUELEN__max               (8*TCP_SND_BUF/TCP_MSS)
 
 /* TCP receive window. */
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus) || defined(PLATFORM_ARM_NetduinoMini) || defined(PLATFORM_ARM_NetduinoGo)
+#define TCP_WND__min                        (1*1024)
+#else
 #define TCP_WND__min                        (2*1024)
+#endif
 #define TCP_WND__default                    (8*1024)
 #define TCP_WND__max                        (32*1024)
 

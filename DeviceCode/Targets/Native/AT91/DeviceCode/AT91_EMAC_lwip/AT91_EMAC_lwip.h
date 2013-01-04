@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) Microsoft Corporation.  All rights reserved.
+// Portions Copyright (c) Secret Labs LLC.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifndef _AT91_EMAC_LWIP_H_1
@@ -222,9 +223,17 @@ typedef void (*EMAC_WakeupCallback)(void);
 // Data Structures for Transfer Buffers
 //----------------------------------------------------------------------------
 // Number of buffer for RX, be carreful: MUST be 2^n
+#if defined(PLATFORM_ARM_NetduinoPlus)
+#define RX_BUFFERS  16
+#else
 #define RX_BUFFERS  32
+#endif
 // Number of buffer for TX, be carreful: MUST be 2^n
+#if defined(PLATFORM_ARM_NetduinoPlus)
+#define TX_BUFFERS   4
+#else
 #define TX_BUFFERS   8
+#endif
 
 // Buffer Size
 #define EMAC_RX_UNITSIZE             128    /// Fixed size for RX buffer

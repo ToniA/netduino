@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) Microsoft Corporation.  All rights reserved.
+// Portions Copyright (c) Secret Labs LLC.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include <tinyhal.h>
@@ -111,6 +112,9 @@ void AT91_I2C_Driver::MasterXAction_Start( I2C_HAL_XACTION* xAction, bool repeat
         
     address  = (xAction->m_address << AT91_I2C::TWI_MMR_DADR_SHIFT);
 
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus) || defined(PLATFORM_ARM_NetduinoMini)
+    UINT32 internalAddress = g_AT91_I2C_Driver.m_currentXActionUnit->m_internalAddress;
+#endif
 
     // set MSEN first 
     
@@ -124,7 +128,7 @@ void AT91_I2C_Driver::MasterXAction_Start( I2C_HAL_XACTION* xAction, bool repeat
     if (g_AT91_I2C_Driver.m_currentXActionUnit->IsReadXActionUnit())
         address |=  AT91_I2C::TWI_MMR_MREAD_R ;
 
-// At91 I2C do not support repeated start.
+// At91 I2C do not fully support repeated start.
 //    if(!repeatedStart) 
     {        
         /////////////////////////////////
@@ -147,7 +151,30 @@ void AT91_I2C_Driver::MasterXAction_Start( I2C_HAL_XACTION* xAction, bool repeat
 
         I2C.TWI_IER = AT91_I2C::TWI_IER_NACK | AT91_I2C::TWI_IER_RXRDY | AT91_I2C::TWI_IER_TXCOMP | AT91_I2C::TWI_IER_TXRDY;
 
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus) || defined(PLATFORM_ARM_NetduinoMini)
+        // if enabled (internal address size > 0), set our internal address as well
+        switch(g_AT91_I2C_Driver.m_currentXActionUnit->m_internalAddressSize)
+        {
+        case 1:
+            I2C.TWI_MMR = (address | AT91_I2C::TWI_MMR_IADRSZ_1);
+            I2C.TWI_IADR = (internalAddress & AT91_I2C::TWI_IADR_MASK_1);
+            break;
+        case 2:
+            I2C.TWI_MMR = (address | AT91_I2C::TWI_MMR_IADRSZ_2);
+            I2C.TWI_IADR = (internalAddress & AT91_I2C::TWI_IADR_MASK_2);
+            break;
+        case 3:
+            I2C.TWI_MMR = (address | AT91_I2C::TWI_MMR_IADRSZ_3);
+            I2C.TWI_IADR = (internalAddress & AT91_I2C::TWI_IADR_MASK_3);
+            break;
+        default:
+            I2C.TWI_MMR = address;
+            I2C.TWI_IADR = 0x0;    
+            break;
+        }
+#else
         I2C.TWI_MMR = address;
+#endif
 
         I2C.TWI_CR = control;
        

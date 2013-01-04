@@ -222,8 +222,12 @@ int ENC28J60_LWIP_Driver::Open( ENC28J60_LWIP_DRIVER_CONFIG* config, int index )
    
     memcpy(g_ENC28J60_NetIF.hwaddr, iface->macAddressBuffer, len);
 
+#if defined(PLATFORM_ARM_NetduinoPlus) || defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoMini) || defined(PLATFORM_ARM_NetduinoGo)
+    g_ENC28J60_NetIF.flags = NETIF_FLAG_BROADCAST;
+#else
     g_ENC28J60_NetIF.flags = NETIF_FLAG_IGMP | NETIF_FLAG_BROADCAST;
-        
+#endif
+
     pNetIF = netif_add( &g_ENC28J60_NetIF, &ipaddr, &netmask, &gw, NULL, enc28j60_ethhw_init, ethernet_input );
        
     /* Enable the INTERRUPT pin */                            

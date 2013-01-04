@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) Microsoft Corporation.  All rights reserved.
+// Portions Copyright (c) Secret Labs LLC.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "i2c.h"
@@ -56,10 +57,18 @@ void I2C_InitializeTransaction( I2C_HAL_XACTION* xAction, I2C_USER_CONFIGURATION
     xAction->Initialize( config, xActions, numXActions );
 }
 
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus) || defined(PLATFORM_ARM_NetduinoMini)
+void I2C_InitializeTransactionUnit( I2C_HAL_XACTION_UNIT* xActionUnit, I2C_WORD* src, I2C_WORD* dst, size_t size, BOOL fRead, UINT8 internalAddressSize, UINT32 internalAddress )
+#else
 void I2C_InitializeTransactionUnit( I2C_HAL_XACTION_UNIT* xActionUnit, I2C_WORD* src, I2C_WORD* dst, size_t size, BOOL fRead )
+#endif
 {
     NATIVE_PROFILE_PAL_COM();
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus) || defined(PLATFORM_ARM_NetduinoMini)
+    xActionUnit->Initialize( src, dst, size, fRead, internalAddressSize, internalAddress );
+#else
     xActionUnit->Initialize( src, dst, size, fRead );
+#endif
 }
 
 //--//
@@ -102,12 +111,20 @@ BOOL I2C_XActionUnit_IsRead( I2C_HAL_XACTION_UNIT* xActionUnit )
 
 ///////////////////////////////////////////////////////////////////////////////
 
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus) || defined(PLATFORM_ARM_NetduinoMini)
+void I2C_HAL_XACTION_UNIT::Initialize( I2C_WORD* src, I2C_WORD* dst, size_t size, BOOL fRead, UINT8 internalAddressSize, UINT32 internalAddress )
+#else
 void I2C_HAL_XACTION_UNIT::Initialize( I2C_WORD* src, I2C_WORD* dst, size_t size, BOOL fRead )
+#endif
 {
     NATIVE_PROFILE_PAL_COM();
     m_bytesToTransfer  = size;
     m_bytesTransferred = 0;
     m_fRead            = fRead;
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus) || defined(PLATFORM_ARM_NetduinoMini)
+    m_internalAddressSize = internalAddressSize;
+    m_internalAddress = internalAddress;
+#endif
 
     m_dataQueue.Initialize( dst, size );
 

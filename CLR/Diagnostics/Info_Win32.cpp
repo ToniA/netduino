@@ -91,7 +91,7 @@ void CLR_RT_Assembly::Dump( bool fNoByteCode )
 {
     int i;
 
-    Dump_Printf( "Assembly: %s (%d.%d.%d.%d)\n\n", m_szName, m_header->version.iMajorVersion, m_header->version.iMinorVersion, m_header->version.iBuildNumber, m_header->version.iRevisionNumber );
+    Dump_Printf( "Assembly: %s (%d.%d.%d.%d)\n", m_szName, m_header->version.iMajorVersion, m_header->version.iMinorVersion, m_header->version.iBuildNumber, m_header->version.iRevisionNumber );
 
     Dump_Printf( "Size: AssemblyRef     %6d byte(s) %6d item(s) [Runtime: %6d]\n", m_pTablesSize[ TBL_AssemblyRef    ] * sizeof(CLR_RECORD_ASSEMBLYREF  ), m_pTablesSize[ TBL_AssemblyRef    ], m_pTablesSize[ TBL_AssemblyRef ] * sizeof(CLR_RT_AssemblyRef_CrossReference) );
     Dump_Printf( "Size: TypeRef         %6d byte(s) %6d item(s) [Runtime: %6d]\n", m_pTablesSize[ TBL_TypeRef        ] * sizeof(CLR_RECORD_TYPEREF      ), m_pTablesSize[ TBL_TypeRef        ], m_pTablesSize[ TBL_TypeRef     ] * sizeof(CLR_RT_TypeRef_CrossReference    ) );

@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) Microsoft Corporation.  All rights reserved.
+// Portions Copyright (c) Secret Labs LLC.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifndef _DRIVERS_I2C_DECL_H_
@@ -25,10 +26,18 @@ struct I2C_HAL_XACTION_UNIT
     size_t                          m_bytesTransferred;
     size_t                          m_bytesToTransfer;
     BOOL                            m_fRead;
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus) || defined(PLATFORM_ARM_NetduinoMini)
+    UINT8                           m_internalAddressSize;
+    UINT32                          m_internalAddress;
+#endif
 
     //--//
     
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus) || defined(PLATFORM_ARM_NetduinoMini)
+    void Initialize( I2C_WORD* src, I2C_WORD* dst, size_t size, BOOL fRead, UINT8 internalAddressSize, UINT32 internalAddress );      
+#else
     void Initialize( I2C_WORD* src, I2C_WORD* dst, size_t size, BOOL fRead );      
+#endif
 
     __inline void CopyBuffer( I2C_WORD* data, size_t length )
     {
@@ -126,7 +135,11 @@ BOOL I2C_Uninitialize             (                                       );
 BOOL I2C_Enqueue                  ( I2C_HAL_XACTION* xAction              );
 void I2C_Cancel                   ( I2C_HAL_XACTION* xAction, bool signal );
 void I2C_InitializeTransaction    ( I2C_HAL_XACTION* xAction, I2C_USER_CONFIGURATION& config, I2C_HAL_XACTION_UNIT** xActions, size_t numXActions );
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus) || defined(PLATFORM_ARM_NetduinoMini)
+void I2C_InitializeTransactionUnit( I2C_HAL_XACTION_UNIT* xActionUnit, I2C_WORD* src, I2C_WORD* dst, size_t size, BOOL fRead, UINT8 internalAddressSize, UINT32 internalAddress ); 
+#else
 void I2C_InitializeTransactionUnit( I2C_HAL_XACTION_UNIT* xActionUnit, I2C_WORD* src, I2C_WORD* dst, size_t size, BOOL fRead                      );
+#endif
 
 void   I2C_XAction_SetState       ( I2C_HAL_XACTION* xAction, UINT8 state                            );
 UINT8  I2C_XAction_GetState       ( I2C_HAL_XACTION* xAction                                         );

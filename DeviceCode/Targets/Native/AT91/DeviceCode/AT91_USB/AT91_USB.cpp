@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) Microsoft Corporation.  All rights reserved.
+// Portions Copyright (c) Secret Labs LLC.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include <tinyhal.h>
@@ -65,7 +66,11 @@ HRESULT AT91_USB_Driver::Initialize( int Controller )
 
     // init the USB core
     udp.UDP_RSTEP = AT91_UDP::UDP_EP0 | AT91_UDP::UDP_EP1 | AT91_UDP::UDP_EP2 | AT91_UDP::UDP_EP3 | AT91_UDP::UDP_EP4 | AT91_UDP::UDP_EP5;
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus)
+    udp.UDP_IDR = AT91_UDP::UDP_EPINT0 | AT91_UDP::UDP_EPINT1 |AT91_UDP::UDP_EPINT2 | AT91_UDP::UDP_EPINT3 | AT91_UDP::UDP_EPINT4 | AT91_UDP::UDP_EPINT5;
+#else
     udp.UDP_IDR = AT91_UDP::UDP_EPINT0 | AT91_UDP::UDP_EPINT1 |AT91_UDP::UDP_EPINT2 | AT91_UDP::UDP_EPINT3;
+#endif
 
     // Enable USB device clock
     pmc.EnablePeriphClock(AT91C_ID_UDP);
@@ -137,7 +142,7 @@ HRESULT AT91_USB_Driver::Initialize( int Controller )
                     udp.UDP_CSR[endpointNum] |= AT91_UDP::UDP_EPTYPE_BULK_OUT;
                     break;
                 case 3:
-                    udp.UDP_CSR[endpointNum] |= AT91_UDP::UDP_EPTYPE_ISO_OUT;
+                    udp.UDP_CSR[endpointNum] |= AT91_UDP::UDP_EPTYPE_INT_OUT;
                     break;
             }
         }
@@ -153,7 +158,7 @@ HRESULT AT91_USB_Driver::Initialize( int Controller )
                     udp.UDP_CSR[endpointNum] |= AT91_UDP::UDP_EPTYPE_BULK_IN;
                     break;
                 case 3:
-                    udp.UDP_CSR[endpointNum] |= AT91_UDP::UDP_EPTYPE_ISO_IN;
+                    udp.UDP_CSR[endpointNum] |= AT91_UDP::UDP_EPTYPE_INT_IN;
                     break;
             }
         }
@@ -204,7 +209,11 @@ HRESULT AT91_USB_Driver::Uninitialize( int Controller )
     memset(&UsbControllerState[Controller], 0, sizeof(UsbControllerState[Controller]));
 
     udp.UDP_FADDR  = 0;
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus)
+    udp.UDP_RSTEP = AT91_UDP::UDP_EP0 | AT91_UDP::UDP_EP1 | AT91_UDP::UDP_EP2 | AT91_UDP::UDP_EP3 | AT91_UDP::UDP_EP4 | AT91_UDP::UDP_EP5;
+#else
     udp.UDP_RSTEP = udp.UDP_EP0 | udp.UDP_EP1 | udp.UDP_EP2 | udp.UDP_EP3;
+#endif
     udp.UDP_ICR   = 0x3B;
   
     #if defined(AT91_UDP_EXTERNAL_PULLUP)
@@ -472,7 +481,8 @@ void AT91_USB_Driver::Endpoint_ISR(UINT32 endpoint)
 
             // special handling for the very first SETUP command - Getdescriptor[DeviceType], the host looks for 8 bytes data only
             USB_SETUP_PACKET* Setup= (USB_SETUP_PACKET* )&g_AT91_USB_Driver.ControlPacketBuffer[0];
-            if((Setup->bRequest == USB_GET_DESCRIPTOR) && (((Setup->wValue & 0xFF00) >> 8) == USB_DEVICE_DESCRIPTOR_TYPE) && (Setup->wLength != 0x12))
+//            if((Setup->bRequest == USB_GET_DESCRIPTOR) && (((Setup->wValue & 0xFF00) >> 8) == USB_DEVICE_DESCRIPTOR_TYPE) && (Setup->wLength != 0x12))
+            if((Setup->bRequest == USB_GET_DESCRIPTOR) && (((Setup->wValue & 0xFF00) >> 8) == USB_DEVICE_DESCRIPTOR_TYPE) && (Setup->wLength == 0x08))
                 g_AT91_USB_Driver.FirstDescriptorPacket = TRUE;
             else
                 g_AT91_USB_Driver.FirstDescriptorPacket = FALSE;
@@ -685,7 +695,7 @@ void AT91_USB_Driver::ResumeEvent()
 
     USB_StateCallback( State );
 
-    // Enable wakeup and resume
+    // Enable suspend
     udp.UDP_IER = AT91_UDP::UDP_RXSUSP;
     udp.UDP_IDR = AT91_UDP::UDP_WAKEUP | AT91_UDP::UDP_RXRSM;
 

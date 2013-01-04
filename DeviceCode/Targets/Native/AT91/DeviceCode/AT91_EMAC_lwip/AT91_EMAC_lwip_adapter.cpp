@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) Microsoft Corporation.  All rights reserved.
+// Portions Copyright (c) Secret Labs LLC.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////#include <tinyhal.h>
 
 #include <tinyhal.h>
@@ -77,10 +78,13 @@ void AT91_EMAC__status_callback(struct netif *netif)
 
 err_t AT91_igmp_mac_filter( struct netif *netif, struct ip_addr *group, u8_t action)
 {
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus) || defined(PLATFORM_ARM_NetduinoMini)
+#else
    if(action == IGMP_ADD_MAC_FILTER)
    {
        AT91_EMAC_AddMulticastAddr(group->addr);
    }
+#endif
    return ERR_OK;
 }
 
@@ -98,7 +102,10 @@ err_t AT91_EMAC_ethhw_init(struct netif *myNetIf)
     myNetIf->linkoutput = AT91_EMAC_LWIP_xmit;
     myNetIf->status_callback = AT91_EMAC__status_callback;
 
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus) || defined(PLATFORM_ARM_NetduinoMini)
+#else
     myNetIf->igmp_mac_filter = AT91_igmp_mac_filter;
+#endif
 
     AT91_EMAC_LWIP_open( myNetIf );
 
@@ -224,7 +231,11 @@ int AT91_EMAC_LWIP_Driver::Open(int index)
     // Enable Interrupt
     CPU_INTC_ActivateInterrupt(AT91C_ID_EMAC, (HAL_CALLBACK_FPN)AT91_EMAC_LWIP_interrupt, &g_AT91_EMAC_NetIF);
 
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus) || defined(PLATFORM_ARM_NetduinoMini)
+    g_AT91_EMAC_NetIF.flags = NETIF_FLAG_BROADCAST;
+#else
     g_AT91_EMAC_NetIF.flags = NETIF_FLAG_IGMP | NETIF_FLAG_BROADCAST;
+#endif
 
     pNetIF = netif_add( &g_AT91_EMAC_NetIF, &ipaddr, &subnetmask, &gateway, NULL, AT91_EMAC_ethhw_init, ethernet_input );
 

@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) Microsoft Corporation.  All rights reserved.
+// Portions Copyright (c) Secret Labs LLC.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "SPOT_Hardware.h"
@@ -22,6 +23,9 @@ HRESULT Library_spot_hardware_native_Microsoft_SPOT_Hardware_SPI__Configuration:
     nativeConfig.SPI_mod                = config[ FIELD__SPI_mod                ].NumericByRef().u4             ;
     nativeConfig.BusyPin.Pin            = config[ FIELD__BusyPin                ].NumericByRef().u4             ;
     nativeConfig.BusyPin.ActiveState    = config[ FIELD__BusyPin_ActiveState    ].NumericByRef().u1 != 0 ? 1 : 0;
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus) || defined(PLATFORM_ARM_NetduinoMini)
+    nativeConfig.BitsPerTransfer        = config[ FIELD__Custom_BitsPerTransfer ].NumericByRef().u4             ;
+#endif
 
     TINYCLR_NOCLEANUP();
 }

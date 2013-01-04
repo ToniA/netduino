@@ -1,11 +1,27 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) Microsoft Corporation.  All rights reserved.
+// Portions Copyright (c) Secret Labs LLC.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include <tinyhal.h>
+#if defined(PLATFORM_ARM_Netduino)
+#include "..\..\Solutions\Netduino\DeviceCode\DeploymentTransport\DeploymentTransport.h"
+#elif defined(PLATFORM_ARM_NetduinoPlus)
+#include "..\..\Solutions\NetduinoPlus\DeviceCode\DeploymentTransport\DeploymentTransport.h"
+#elif defined(PLATFORM_ARM_NetduinoMini)
+#include "..\..\Solutions\NetduinoMini\DeviceCode\DeploymentTransport\DeploymentTransport.h"
+#elif defined(PLATFORM_ARM_NetduinoGo)
+#include "..\..\Solutions\NetduinoGo\DeviceCode\DeploymentTransport\DeploymentTransport.h"
+#elif defined(PLATFORM_ARM_NetduinoShieldBase)
+#include "..\..\Solutions\NetduinoShieldBase\DeviceCode\DeploymentTransport\DeploymentTransport.h"
+#endif
 
 #if !defined(__GNUC__)
 #include <rt_fp.h>
+#endif
+
+#if defined(PLATFORM_ARM_SAM7X_ANY) && !defined(HAL_REDUCESIZE)
+#include "../Targets/Native/AT91/DeviceCode/AT91_SAM\AT91_SAM7X.h"
 #endif
 
 //--//
@@ -386,6 +402,10 @@ void HAL_Initialize()
 
     FileSystemVolumeList::InitializeVolumes();
 
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus) || defined(PLATFORM_ARM_NetduinoMini) || defined(PLATFORM_ARM_NetduinoGo) || defined(PLATFORM_ARM_NetduinoShieldBase)
+	DeploymentTransport_Initialize();
+#endif
+
     LCD_Initialize();
     
 #if !defined(HAL_REDUCESIZE)
@@ -412,6 +432,20 @@ void HAL_Initialize()
 
 #if defined(ENABLE_NATIVE_PROFILER)
     Native_Profiler_Init();
+#endif
+
+#if defined(PLATFORM_ARM_NetduinoMini)
+#else
+#if defined(PLATFORM_ARM_SAM7X_ANY) && !defined(HAL_REDUCESIZE)
+	    // enable NRST IRQ feature on the NSRT pin
+        volatile UINT32 *pResetMode = (volatile UINT32*)AT91C_BASE_RSTC_MR;
+        *pResetMode = (AT91C_RSTC__RESET_KEY | AT91C_RSTC_MR__URSTIEN); // enable NRST IRQ
+		
+		// enable the NRST IRQ routine
+		CPU_INTC_ActivateInterrupt( AT91C_ID_SYS, AT91_USART_Driver::USART_ISR, (void*)(size_t)0);
+		// NOTE: because this interrupt is shared with DBGU and the USART driver does not deactivate the interrupt in
+		//       its uninitialize routine, we do not deactivate the interrupt either.
+#endif
 #endif
 }
 
@@ -546,6 +580,72 @@ void BootEntry()
 
 
     CPU_Initialize();
+
+#if defined(PLATFORM_ARM_NetduinoGo)
+	// put all socket select pins in "input mode, resistor in pullup mode"
+	CPU_GPIO_EnableInputPin(0x1B, FALSE, NULL, GPIO_INT_NONE, RESISTOR_PULLUP); // socket 1
+	CPU_GPIO_EnableInputPin(0x2B, FALSE, NULL, GPIO_INT_NONE, RESISTOR_PULLUP); // socket 2
+	CPU_GPIO_EnableInputPin(0x04, FALSE, NULL, GPIO_INT_NONE, RESISTOR_PULLUP); // socket 3
+	CPU_GPIO_EnableInputPin(0x08, FALSE, NULL, GPIO_INT_NONE, RESISTOR_PULLUP); // socket 4
+	CPU_GPIO_EnableInputPin(0x10, FALSE, NULL, GPIO_INT_NONE, RESISTOR_PULLUP); // socket 5
+	CPU_GPIO_EnableInputPin(0x11, FALSE, NULL, GPIO_INT_NONE, RESISTOR_PULLUP); // socket 6
+	CPU_GPIO_EnableInputPin(0x32, FALSE, NULL, GPIO_INT_NONE, RESISTOR_PULLUP); // socket 7
+	CPU_GPIO_EnableInputPin(0x1C, FALSE, NULL, GPIO_INT_NONE, RESISTOR_PULLUP); // socket 8
+
+#if FALSE // enable this section of code to use pre-release networking on socket 8
+	// turn on socket 8 (for the networking module) via the 595 shift register
+	// NOTE: this is a temporary operation; we'll replace this will runtime initialization of networking
+	int shift_clk = 42;
+	int shift_mosi = 21;
+	int shift_outputenable = 10;
+	int shift_cs = 18;
+
+	CPU_GPIO_EnableOutputPin(shift_clk, FALSE);
+	CPU_GPIO_EnableOutputPin(shift_mosi, FALSE);
+	CPU_GPIO_EnableOutputPin(shift_outputenable, TRUE);
+	CPU_GPIO_EnableOutputPin(shift_cs, FALSE);
+
+	int socketToTurnOn = 8; // turn on socket #8
+	int numSockets = 8; // total socket count = 8
+	int iSocket = 0;
+	int iClockPause = 0;
+	int iCount = 0;
+	for (iSocket = 0; iSocket < numSockets; iSocket++)
+	{
+    	CPU_GPIO_EnableOutputPin(shift_cs, FALSE);
+
+		if ((numSockets - iSocket) == socketToTurnOn)
+	    	CPU_GPIO_EnableOutputPin(shift_mosi, TRUE);
+		else
+	    	CPU_GPIO_EnableOutputPin(shift_mosi, FALSE);
+
+		CPU_GPIO_EnableOutputPin(shift_clk, TRUE);
+		for (iClockPause = 0; iClockPause < 1000; iClockPause++)
+			iCount++;
+			
+		CPU_GPIO_EnableOutputPin(shift_clk, FALSE);
+		for (iClockPause = 0; iClockPause < 1000; iClockPause++)
+			iCount++;
+
+		CPU_GPIO_EnableOutputPin(shift_cs, TRUE);
+		for (iClockPause = 0; iClockPause < 1000; iClockPause++)
+			iCount++;
+	}
+
+	// enable shift register output
+	CPU_GPIO_EnableOutputPin(shift_outputenable, FALSE);
+#endif
+
+        // turn on socket LEDs
+        CPU_GPIO_EnableOutputPin(22, TRUE); // LED_SOCKET1
+        CPU_GPIO_EnableOutputPin(23, TRUE); // LED_SOCKET2
+        CPU_GPIO_EnableOutputPin(24, TRUE); // LED_SOCKET3
+        CPU_GPIO_EnableOutputPin(25, TRUE); // LED_SOCKET4
+        CPU_GPIO_EnableOutputPin(38, TRUE); // LED_SOCKET5
+        CPU_GPIO_EnableOutputPin(39, TRUE); // LED_SOCKET6
+        CPU_GPIO_EnableOutputPin(40, TRUE); // LED_SOCKET7
+        CPU_GPIO_EnableOutputPin(41, TRUE); // LED_SOCKET8
+#endif
 
     HAL_Time_Initialize();
 

@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) Microsoft Corporation.  All rights reserved.
+// Portions Copyright (c) Secret Labs LLC.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifndef _AT91_H_1
@@ -272,6 +273,15 @@ struct AT91_PMC {
 
 __inline void AT91_RSTC_EXTRST()
 {
+#if defined(PLATFORM_ARM_SAM7X_ANY)
+    // check if user reset is enabled (using the NRST IRQ)
+#if defined(PLATFORM_ARM_NetduinoMini)
+    bool resetEnabled = (((*(volatile UINT32 *)AT91C_BASE_RSTC_MR) & AT91C_RSTC_MR__URSTIEN) == AT91C_RSTC_MR__URSTEN);
+#else
+    bool resetEnabled = (((*(volatile UINT32 *)AT91C_BASE_RSTC_MR) & AT91C_RSTC_MR__URSTIEN) == AT91C_RSTC_MR__URSTIEN);
+#endif
+#endif
+
     volatile UINT32 *pReset       = (volatile UINT32*)AT91C_BASE_RSTC;
     volatile UINT32 *pResetStatus = (volatile UINT32*)AT91C_BASE_RSTC_SR;
     volatile UINT32 *pResetMode   = (volatile UINT32*)AT91C_BASE_RSTC_MR;
@@ -279,8 +289,20 @@ __inline void AT91_RSTC_EXTRST()
     *pResetMode = (AT91C_RSTC__RESET_KEY | 4ul << 8);
     *pReset     = (AT91C_RSTC__RESET_KEY | AT91C_RTSC__EXTRST);
 
-    //Wait for hardware reset end
+    //Wait for software reset end
     while(((*pResetStatus) & AT91C_RTSC_SR__SRCMP)) {;}   
+
+#if defined(PLATFORM_ARM_SAM7X_ANY)
+#if defined(PLATFORM_ARM_NetduinoMini)
+    // re-enable user reset (i.e. activate the NSRT IRQ)
+    if (resetEnabled)
+	    (*(volatile UINT32 *)AT91C_BASE_RSTC_MR) = AT91C_RSTC__RESET_KEY | AT91C_RSTC_MR__URSTEN;
+#else
+    // re-enable user reset (i.e. activate the NSRT IRQ)
+    if (resetEnabled)
+	    (*(volatile UINT32 *)AT91C_BASE_RSTC_MR) = AT91C_RSTC__RESET_KEY | AT91C_RSTC_MR__URSTIEN;
+#endif
+#endif
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -623,6 +645,135 @@ struct AT91_PIO {
 
 // --//
 
+#if defined(PLATFORM_ARM_SAM7X_ANY)
+
+//////////////////////////////////////////////////////////////////////////////
+// AT91_ADC
+//
+struct AT91_ADC
+{
+    static const UINT32 c_Base = AT91C_BASE_ADC;
+
+    //--//
+    
+    /****/ volatile UINT32 ADC_CR;		// Control Register
+    static const    UINT32 ADC_SWRST = (0x1 << 0);	// Reset the ADC simulating a hardware reset
+
+    /****/ volatile UINT32 ADC_MR;		// Mode Register
+
+    /****/ volatile UINT32 Reserved0[2];
+    
+    /****/ volatile UINT32 ADC_CHER;		// Channel Enable Register
+
+    /****/ volatile UINT32 ADC_CHDR;		// Channel Disable Register
+
+    /****/ volatile UINT32 ADC_CHSR;		// Channel Status Register
+
+    /****/ volatile UINT32 ADC_SR;		// Status Register
+
+    /****/ volatile UINT32 ADC_LCDR;		// Last Converted Data Register
+
+    /****/ volatile UINT32 ADC_IER;		// Interrupt Enable Register
+
+    /****/ volatile UINT32 ADC_IDR;		// Interrupt Disable Register
+
+    /****/ volatile UINT32 ADC_IMR;		// Interrupt Mask Register
+
+    /****/ volatile UINT32 ADC_CDR0;		// Channel Data Register 0
+
+    /****/ volatile UINT32 ADC_CDR1;		// Channel Data Register 1
+
+    /****/ volatile UINT32 ADC_CDR2;		// Channel Data Register 2
+
+    /****/ volatile UINT32 ADC_CDR3;		// Channel Data Register 3
+
+    /****/ volatile UINT32 ADC_CDR4;		// Channel Data Register 4
+
+    /****/ volatile UINT32 ADC_CDR5;		// Channel Data Register 5
+
+    /****/ volatile UINT32 ADC_CDR6;		// Channel Data Register 6
+
+    /****/ volatile UINT32 ADC_CDR7;		// Channel Data Register 7
+};
+//
+// AT91_ADC
+//////////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////////
+// AT91_PWM
+//
+struct AT91_PWM {
+    static const UINT32 c_Base = AT91C_BASE_PWMC;
+
+    /****/ volatile UINT32 PWM_MR;        // PWM Mode Register
+
+    /****/ volatile UINT32 PWM_ENA;       // PWM Enable Register
+
+    /****/ volatile UINT32 PWM_DIS;       // PWM Disable Register
+
+    /****/ volatile UINT32 PWM_SR;        // PWM Status Register
+
+    /****/ volatile UINT32 PWM_IER;       // PWM Interrupt Enable Register
+
+    /****/ volatile UINT32 PWM_IDR;       // PWM Interrupt Disable Register
+
+    /****/ volatile UINT32 PWM_IMR;       // PWM Interrupt Mask Register
+
+    /****/ volatile UINT32 PWM_ISR;       // PWM Interrupt Status Register
+
+    /****/ volatile UINT32 Reserved0[56]; //
+
+    /****/ volatile UINT32 Reserved1[64]; //
+
+
+    // NOTE: reconsider reworking the channels as an array in a future revision
+//    /****/ volatile AT91_PWM_CH Channel[4]; // 
+};
+//
+// AT91_PWM
+//////////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////////
+// AT91_PWM_CH
+//
+struct AT91_PWM_CH {
+    static const UINT32 c_Base = AT91C_BASE_PWMC_CH0;
+    static const UINT32 c_Base_Offset = 0x20;
+
+    /****/ volatile UINT32 PWM_CMR;      // PWM Channel Mode Register
+    static const    UINT32 PWM_CMR_CPRE_MCK_1    = 0x0; // Channel Pre-scaler: MCK / 1
+    static const    UINT32 PWM_CMR_CPRE_MCK_2    = 0x1; // Channel Pre-scaler: MCK / 2
+    static const    UINT32 PWM_CMR_CPRE_MCK_4    = 0x2; // Channel Pre-scaler: MCK / 4
+    static const    UINT32 PWM_CMR_CPRE_MCK_8    = 0x3; // Channel Pre-scaler: MCK / 8
+    static const    UINT32 PWM_CMR_CPRE_MCK_16   = 0x4; // Channel Pre-scaler: MCK / 16
+    static const    UINT32 PWM_CMR_CPRE_MCK_32   = 0x5; // Channel Pre-scaler: MCK / 32
+    static const    UINT32 PWM_CMR_CPRE_MCK_64   = 0x6; // Channel Pre-scaler: MCK / 64
+    static const    UINT32 PWM_CMR_CPRE_MCK_128  = 0x7; // Channel Pre-scaler: MCK / 128
+    static const    UINT32 PWM_CMR_CPRE_MCK_256  = 0x8; // Channel Pre-scaler: MCK / 256
+    static const    UINT32 PWM_CMR_CPRE_MCK_512  = 0x9; // Channel Pre-scaler: MCK / 512
+    static const    UINT32 PWM_CMR_CPRE_MCK_1024 = 0xA; // Channel Pre-scaler: MCK / 1024
+    static const    UINT32 PWM_CMR_CPRE_CLKA     = 0xB; // Channel Pre-scaler: CLKA
+    static const    UINT32 PWM_CMR_CPRE_CLKB     = 0xC; // Channel Pre-scaler: CLKB
+    static const    UINT32 PWM_CMR_CALG   = (0x1 << 8); // Channel Alignment: left-aligned
+    static const    UINT32 PWM_CMR_CPOL   = (0x1 << 9); // Channel Polarity: starts at high level
+    static const    UINT32 PWM_CMR_CPD    = (0x1 << 10); // Channel Update Period: period will be modified at the next period event
+
+    /****/ volatile UINT32 PWM_CDTY;     // PWM Channel Duty Cycle Register
+
+    /****/ volatile UINT32 PWM_CPRD;     // PWM Channel Period Register
+
+    /****/ volatile UINT32 PWM_CCNT;     // PWM Channel Counter Register
+
+    /****/ volatile UINT32 PWM_CUPD;     // PWM Channel Update Register
+
+    /****/ volatile UINT32 Reserved0[3]; // 
+};
+//
+// AT91_PWM_CH
+//////////////////////////////////////////////////////////////////////////////
+
+#endif
+
 //////////////////////////////////////////////////////////////////////////////
 // AT91_SPI
 //
@@ -671,8 +822,11 @@ struct AT91_SPI
     static const    UINT32 SPI_CSR_CPOL             = (0x1 <<  0); // clock polarity
     static const    UINT32 SPI_CSR_NCPHA            = (0x1 <<  1); // clock phase
     static const    UINT32 SPI_CSR_BITS_MASK        = (0xF << 4); // bits per transfer
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus) || defined(PLATFORM_ARM_NetduinoMini)
+#else
     static const    UINT32 SPI_CSR_8BITS            = (0x0 <<  4);
     static const    UINT32 SPI_CSR_16BITS           = (0x8 <<  4);
+#endif
     static const    UINT32 SPI_CSR_SCBR_MASK        = (0xFF<< 8); // serial clock baud rate
     static const    UINT32 SPI_CSR_SCBR_SHIFT       = (0x8);     // serial clock baud rate
     static const    UINT32 SPI_CSR_DLYBS_MASK       = (0xFF<< 16); // delay before SPCK
@@ -695,6 +849,10 @@ struct AT91_SPI
     {
         UINT32 CSR = 0;
 
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus) || defined(PLATFORM_ARM_NetduinoMini)
+//	if(Configuration.BitsPerTransfer != 0x00) // optional failsafe for unmanaged code which don't set BitsPerTransfer (default to 8 bits | (0 << 4))
+		CSR |= ((Configuration.BitsPerTransfer - 0x08) << 4);
+#else
         if(Configuration.MD_16bits)
         {
             CSR |= SPI_CSR_16BITS;
@@ -703,6 +861,7 @@ struct AT91_SPI
         {
             CSR |= SPI_CSR_8BITS;
         }
+#endif
 
     // NOTE :: AT91 core SPI phase definition is opposite to the typical convention
     // phase = 0 for at91, data change at 2nd edge
@@ -769,8 +928,9 @@ struct AT91_I2C
     static const    UINT32 TWI_MMR_IADRSZ_0   = (0x0 <<  8);  // No internal device address
     static const    UINT32 TWI_MMR_IADRSZ_1   = (0x1 <<  8);  // One byte device address
     static const    UINT32 TWI_MMR_IADRSZ_2   = (0x2 <<  8);  // Two bytes device address
-    static const    UINT32 TWI_MMR_MREAD_W    = (0x0 <<  12); // Three bytes device address
-    static const    UINT32 TWI_MMR_MREAD_R    = (0x1 <<  12); // Three bytes device address
+    static const    UINT32 TWI_MMR_IADRSZ_3   = (0x3 <<  8);  // Three bytes device address
+    static const    UINT32 TWI_MMR_MREAD_W    = (0x0 <<  12); // Master write direction
+    static const    UINT32 TWI_MMR_MREAD_R    = (0x1 <<  12); // Master read direction
     static const    UINT32 TWI_MMR_DADR_MASK  = 0x00FF0000 ;  // Subordinate device address mask
     static const    UINT32 TWI_MMR_DADR_SHIFT = 16;           // subordinate address position
 
@@ -1749,6 +1909,11 @@ struct AT91
     static AT91_PWM     & PWM()             { return *(AT91_PWM     *)(size_t)(      AT91_PWM     ::c_Base                                      ); }
     static AT91_DMA     & DMA()             { return *(AT91_DMA     *)(size_t)(      AT91_DMA     ::c_Base                                      ); }
 */
+#if defined(PLATFORM_ARM_SAM7X_ANY)
+    static AT91_ADC     & ADC()             { return *(AT91_ADC     *)(size_t)(      AT91_ADC     ::c_Base                                      ); }
+    static AT91_PWM     & PWM()             { return *(AT91_PWM     *)(size_t)(      AT91_PWM     ::c_Base                                      ); }
+    static AT91_PWM_CH  & PWM_CH( int sel ) { return *(AT91_PWM_CH   *)(size_t)(AT91_PWM_CH   ::c_Base + AT91_PWM_CH::c_Base_Offset * sel ); }
+#endif
     static AT91_I2C     & I2C()             { return *(AT91_I2C     *)(size_t)(      AT91_I2C     ::c_Base                                      ); }
     static AT91_AIC     & AIC()             { return *(AT91_AIC     *)(size_t)(AT91_AIC     ::c_Base                                      ); }
     static AT91_PIO     & PIO( int sel )    { return *(AT91_PIO     *)(size_t)(AT91_PIO     ::c_Base + AT91_PIO::c_Base_Offset * sel ); }
@@ -1759,8 +1924,15 @@ struct AT91
     static AT91_TC      & TIMER( int sel );
     static AT91_WATCHDOG& WTDG()            { return *(AT91_WATCHDOG*)(size_t)(AT91_WATCHDOG::c_Base                                      ); }
 
+#if defined(PLATFORM_ARM_NetduinoMini)
+    // On Netduino Mini, swap the assignment of COM1 and COM2
+    static AT91_USART   & USART( int sel )  { if( sel == 0)          return *(AT91_USART   *)(size_t)(AT91_USART::c_Base);
+                                                  else if( sel == 1) return *(AT91_USART   *)(size_t)(AT91_USART::c_Base_dbg);
+                                                  else               return *(AT91_USART   *)(size_t)(AT91_USART::c_Base + ((sel - 1) * 0x4000));               }
+#else
     static AT91_USART   & USART( int sel )  { if( sel == 0) return *(AT91_USART   *)(size_t)(AT91_USART::c_Base_dbg);
                                                   else      return *(AT91_USART   *)(size_t)(AT91_USART::c_Base + ((sel - 1) * 0x4000));                        }
+#endif
 
     static AT91_UDP     & UDP()             { return *(AT91_UDP     *)(size_t)(AT91_UDP     ::c_Base                                      ); }
 

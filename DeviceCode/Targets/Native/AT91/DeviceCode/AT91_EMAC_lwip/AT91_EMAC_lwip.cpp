@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) Microsoft Corporation.  All rights reserved.
+// Portions Copyright (c) Secret Labs LLC.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include <tinyhal.h>
@@ -234,7 +235,10 @@ err_t AT91_EMAC_LWIP_xmit(struct netif *pNetIf, struct pbuf *pPBuf)
     /* First see if there is enough space in the remainder of the transmit buffer */
     if (CIRC_SPACE(txTd.head, txTd.tail, TX_BUFFERS) * EMAC_TX_UNITSIZE < length)
     {
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus)
+#else
         debug_printf("AT91_EMAC_LWIP_xmit: no space\r\n");
+#endif
         AT91_EMAC &emac = AT91_EMAC::EMAC();
         // Now start to transmit if it is not already done
         emac.EMAC_NCR |= AT91_EMAC::EMAC_TSTART;

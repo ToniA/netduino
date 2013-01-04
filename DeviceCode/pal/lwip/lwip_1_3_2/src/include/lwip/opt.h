@@ -135,7 +135,11 @@ extern void* private_realloc(void* ptr, unsigned int size);
  * a lot of data that needs to be copied, this should be set high.
  */
 #ifndef MEM_SIZE
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus) || defined(PLATFORM_ARM_NetduinoMini) || defined(PLATFORM_ARM_NetduinoGo)
+#define MEM_SIZE                        10 * 1024
+#else
 #define MEM_SIZE                        128 * 1024
+#endif
 #endif
 
 /**
@@ -220,7 +224,11 @@ extern void* private_realloc(void* ptr, unsigned int size);
  * this should be set high.
  */
 #ifndef MEMP_NUM_PBUF
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus) || defined(PLATFORM_ARM_NetduinoMini) || defined(PLATFORM_ARM_NetduinoGo)
+#define MEMP_NUM_PBUF                   16
+#else
 #define MEMP_NUM_PBUF                   32
+#endif
 #endif
 
 /**
@@ -237,7 +245,11 @@ extern void* private_realloc(void* ptr, unsigned int size);
  * (requires the LWIP_UDP option)
  */
 #ifndef MEMP_NUM_UDP_PCB
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus) || defined(PLATFORM_ARM_NetduinoMini) || defined(PLATFORM_ARM_NetduinoGo)
+#define MEMP_NUM_UDP_PCB                4
+else
 #define MEMP_NUM_UDP_PCB                8
+#endif
 #endif
 
 /**
@@ -245,7 +257,11 @@ extern void* private_realloc(void* ptr, unsigned int size);
  * (requires the LWIP_TCP option)
  */
 #ifndef MEMP_NUM_TCP_PCB
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus) || defined(PLATFORM_ARM_NetduinoMini) || defined(PLATFORM_ARM_NetduinoGo)
+#define MEMP_NUM_TCP_PCB                5
+#else
 #define MEMP_NUM_TCP_PCB                16
+#endif
 #endif
 
 /**
@@ -297,7 +313,11 @@ extern void* private_realloc(void* ptr, unsigned int size);
  * (requires NO_SYS==0)
  */
 #ifndef MEMP_NUM_SYS_TIMEOUT
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus) || defined(PLATFORM_ARM_NetduinoMini) || defined(PLATFORM_ARM_NetduinoGo)
+#define MEMP_NUM_SYS_TIMEOUT           8
+#else
 #define MEMP_NUM_SYS_TIMEOUT           16
+#endif
 #endif
 
 /**
@@ -305,7 +325,11 @@ extern void* private_realloc(void* ptr, unsigned int size);
  * (only needed if you use the sequential API, like api_lib.c)
  */
 #ifndef MEMP_NUM_NETBUF
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus) || defined(PLATFORM_ARM_NetduinoMini) || defined(PLATFORM_ARM_NetduinoGo)
+#define MEMP_NUM_NETBUF                6
+#else
 #define MEMP_NUM_NETBUF                20
+#endif
 #endif
 
 /**
@@ -313,7 +337,11 @@ extern void* private_realloc(void* ptr, unsigned int size);
  * (only needed if you use the sequential API, like api_lib.c)
  */
 #ifndef MEMP_NUM_NETCONN
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus) || defined(PLATFORM_ARM_NetduinoMini) || defined(PLATFORM_ARM_NetduinoGo)
+#define MEMP_NUM_NETCONN               10
+#else
 #define MEMP_NUM_NETCONN               24
+#endif
 #endif
 
 /**
@@ -338,7 +366,11 @@ extern void* private_realloc(void* ptr, unsigned int size);
  * PBUF_POOL_SIZE: the number of buffers in the pbuf pool. 
  */
 #ifndef PBUF_POOL_SIZE
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus) || defined(PLATFORM_ARM_NetduinoMini) || defined(PLATFORM_ARM_NetduinoGo)
+#define PBUF_POOL_SIZE                  16
+#else
 #define PBUF_POOL_SIZE                  128
+#endif
 #endif
 
 /*
@@ -648,7 +680,11 @@ extern void* private_realloc(void* ptr, unsigned int size);
  * LWIP_IGMP==1: Turn on IGMP module. 
  */
 #ifndef LWIP_IGMP
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus) || defined(PLATFORM_ARM_NetduinoMini) || defined(PLATFORM_ARM_NetduinoGo)
+#define LWIP_IGMP                       0
+#else
 #define LWIP_IGMP                       1
+#endif
 #endif
 
 /*
@@ -773,7 +809,11 @@ extern void* private_realloc(void* ptr, unsigned int size);
  * (2 * TCP_MSS) for things to work well
  */
 #ifndef TCP_WND
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus) || defined(PLATFORM_ARM_NetduinoMini) || defined(PLATFORM_ARM_NetduinoGo)
+#define TCP_WND                         (8 * TCP_MSS)
+#else
 #define TCP_WND                         (4 * TCP_MSS)
+#endif
 #endif 
 
 /**
@@ -806,7 +846,11 @@ extern void* private_realloc(void* ptr, unsigned int size);
  * an upper limit on the MSS advertised by the remote host.
  */
 #ifndef TCP_MSS
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus) || defined(PLATFORM_ARM_NetduinoMini) || defined(PLATFORM_ARM_NetduinoGo)
+#define TCP_MSS                         128
+#else
 #define TCP_MSS                         536
+#endif
 #endif
 
 /**
@@ -913,7 +957,11 @@ extern void* private_realloc(void* ptr, unsigned int size);
  * TCP_MSS, IP header, and link header.
  */
 #ifndef PBUF_POOL_BUFSIZE
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus) || defined(PLATFORM_ARM_NetduinoMini) || defined(PLATFORM_ARM_NetduinoGo)
+#define PBUF_POOL_BUFSIZE               128
+#else
 #define PBUF_POOL_BUFSIZE               LWIP_MEM_ALIGN_SIZE(TCP_MSS+40+PBUF_LINK_HLEN)
+#endif
 #endif
 
 /*
