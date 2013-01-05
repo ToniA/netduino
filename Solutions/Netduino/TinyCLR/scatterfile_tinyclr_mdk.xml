@@ -8,13 +8,11 @@
     <!-- ################################################################################ -->
     <!-- 16KB Stack and 16KB Heap -->
     <Set Name="Heap_Begin"      Value="+0"/>
-    <Set Name="Heap_End"        Value="0x0001CFF8"/>
+    <Set Name="Heap_End"        Value="0x0001CFFC"/>
     <Set Name="Stack_Bottom"    Value="0x0001D000"/>
     <Set Name="Stack_Top"       Value="0x0001FFF8"/>
 
     <If Name="TARGETLOCATION" In="FLASH">
-        <!-- the TINYCLR and Hal Code should lie in one partition and the other data/LOG/DEPLOYMENT session should sit in another partition, -->
-        <!-- in order to optimized for flash operations while erasing flash that it is still able to implement code from other flash partition -->
         <Set Name="Code_BaseAddress"    Value="0x0010C000"/>
         <Set Name="Deploy_BaseAddress"  Value="0x0015E000"/>
         <Set Name="Code_Size"           Value="%Deploy_BaseAddress - Code_BaseAddress%"/>
@@ -29,11 +27,7 @@
         <Error Message="Configuration not recognized"/>
     </If>
 
-    <!-- the address and sizes for both load regions (LR_*) are chosen to start and completely fill a flash partition in the 28F320W18 flash chip -->
-
     <LoadRegion Name="LR_%TARGETLOCATION%" Base="%Code_BaseAddress%" Options="ABSOLUTE" Size="%Code_Size%">
-
-      <!-- we have arbitrarily assigned 0x00080000 offset in FLASH for the CLR code, and size of 0x00080000 -->
 
       <ExecRegion Name="ER_%TARGETLOCATION%" Base="%Code_BaseAddress%" Options="FIXED" Size="">
 
@@ -55,13 +49,13 @@
 
         </ExecRegion>
 
-        <!-- skip vector area -->
-
         <ExecRegion Name="ER_RAM_RO" Base="0x00000000" Options="ABSOLUTE" Size="">
-            <!-- the following are dotNetMF's HAL library -->
             <FileMapping Name="VectorsTrampolines.obj" Options="(+RO, +FIRST)" /> <!-- for vector handlers to be far from the vectors -->
             
-            <!-- Include File="%SPOCLIENT%\Solutions\Netduino\TinyCLR\scatterfile_ram_functions.xml"/ -->
+            <!-- <FileMapping Name="AT91_AIC.obj" Options="(+RO)" /> -->
+            <!-- <FileMapping Name="AT91_USB.obj" Options="(+RO)" /> -->
+            
+            <Include File="%SPOCLIENT%\Solutions\Netduino\TinyCLR\scatterfile_ram_functions.xml"/>
             <!-- <Include File="%SPOCLIENT%\Solutions\Netduino\TinyCLR\scatterfile_tinyclr_ram_functions.xml"/> -->
 
             <FileMapping Name="*" Options="(SectionForFlashOperations)" />

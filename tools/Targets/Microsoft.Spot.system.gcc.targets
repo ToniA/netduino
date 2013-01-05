@@ -69,7 +69,7 @@
 
     <POS_DEPENDENT></POS_DEPENDENT>
     <POS_INDEPENDENT>-fpic</POS_INDEPENDENT>
-    <CC_CPP_COMMON_FLAGS>$(CC_CPP_COMMON_FLAGS) -mabi=aapcs -ffunction-sections -fomit-frame-pointer -mlong-calls -fdollars-in-identifiers -fshort-wchar -fno-exceptions  -funsigned-char -mstructure-size-boundary=8</CC_CPP_COMMON_FLAGS>
+    <CC_CPP_COMMON_FLAGS>$(CC_CPP_COMMON_FLAGS) -mabi=aapcs -ffunction-sections -fomit-frame-pointer -mno-long-calls -fdollars-in-identifiers -fshort-wchar -fno-exceptions  -funsigned-char -mstructure-size-boundary=8</CC_CPP_COMMON_FLAGS>
     <CC_CPP_TARGETTYPE_FLAGS Condition="'$(FLAVOR)'=='RTM'"          >$(CC_CPP_TARGETTYPE_FLAGS) -O3</CC_CPP_TARGETTYPE_FLAGS>
     <CC_CPP_TARGETTYPE_FLAGS Condition="'$(FLAVOR)'=='Debug'"        >$(CC_CPP_TARGETTYPE_FLAGS) -g -O0 -femit-class-debug-always</CC_CPP_TARGETTYPE_FLAGS>
     <CC_CPP_TARGETTYPE_FLAGS Condition="'$(FLAVOR)'=='Instrumented'" >$(CC_CPP_TARGETTYPE_FLAGS) -g -O0</CC_CPP_TARGETTYPE_FLAGS>
@@ -238,8 +238,8 @@
     <GNU_LIB_DIR     Condition="'$(INSTRUCTION_SET)'=='thumb'">$(GNU_TOOLS)\$(GNU_TARGET)\lib\thumb</GNU_LIB_DIR>
     <GNU_LIBGCC_DIR  Condition="'$(INSTRUCTION_SET)'=='thumb'">$(GNU_TOOLS)\lib\gcc\$(GNU_TARGET)\$(GNU_VERSION)\thumb</GNU_LIBGCC_DIR>
     <!-- adding the extra lib if the CLR is compiled in RVDS, whenever we have libs from RVDS, we need this -->
-    <ExtraLibs       Condition="'$(INSTRUCTION_SET)'=='thumb' and '$(ENDIANNESS)'=='be'">$(SPOCLIENT)\tools\ads_v3_1\Lib\armlib\h_t.b $(SPOCLIENT)\tools\ads_v3_1\Lib\armlib\c_t.b</ExtraLibs>
-    <ExtraLibs       Condition="'$(INSTRUCTION_SET)'=='thumb' and '$(ENDIANNESS)'=='le'">$(SPOCLIENT)\tools\ads_v3_1\Lib\armlib\h_t.l $(SPOCLIENT)\tools\ads_v3_1\Lib\armlib\c_t.l</ExtraLibs>
+    <!--<ExtraLibs       Condition="'$(INSTRUCTION_SET)'=='thumb' and '$(ENDIANNESS)'=='be'">$(SPOCLIENT)\tools\ads_v3_1\Lib\armlib\h_t.b $(SPOCLIENT)\tools\ads_v3_1\Lib\armlib\c_t.b</ExtraLibs>-->
+    <!--<ExtraLibs       Condition="'$(INSTRUCTION_SET)'=='thumb' and '$(ENDIANNESS)'=='le'">$(SPOCLIENT)\tools\ads_v3_1\Lib\armlib\h_t.l $(SPOCLIENT)\tools\ads_v3_1\Lib\armlib\c_t.l</ExtraLibs>-->
 
     <LIBGCC >libgcc.a</LIBGCC>
     <LIBCGCC>libc.a</LIBCGCC>
