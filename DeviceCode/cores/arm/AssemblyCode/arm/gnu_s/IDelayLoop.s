@@ -16,8 +16,8 @@ IDelayLoop__Fi_b:
  
     subs    r0, r0, #4          @@ 1 cycle
     bgt     IDelayLoop__Fi_b    @@ 3 cycles, expect the last round, which is 1 cycle.
-	
-    mov     pc, lr              @@ 3 cycles, expect the last round, which is 1 cycle.
+
+    bx      lr                  @@ 3 cycles, expect the last round, which is 1 cycle.
 
         @@ Total cost of execution: 8 + 4 * count.
         @@
@@ -52,7 +52,7 @@ IDelayLoop2:
     subs    r0,r0, #2           @@ 1 cycle
     bgt     IDelayLoop2         @@ 1 cycle
                                 @@ Effectively 4 additional cycles here due to branch prediction failure on the last loop
-    mov     pc, lr              @@ 5 cycles
+    bx      lr                  @@ 5 cycles
 
     @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 

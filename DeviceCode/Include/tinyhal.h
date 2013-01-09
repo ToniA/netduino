@@ -87,7 +87,7 @@
 #define GNU_PACKED  __attribute__((packed))
 #define __section(x) __attribute__((section(#x)))
 #define __irq __attribute__((interrupt))
-#define __forceinline __attribute__((always_inline))
+#define __forceinline inline __attribute__((always_inline))
 #define ADS_LINKER_BUG__NOT_ALL_UNUSED_VARIABLES_ARE_REMOVED // Include so that zi variables are correctly sectioned
 
 #define FORCEINLINE __forceinline

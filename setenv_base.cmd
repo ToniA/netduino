@@ -251,6 +251,9 @@ SET COMPILER_TOOL_VERSION_NUM=%COMPILER_TOOL_VERSION_NUM:~0,3%
 SET COMPILER_TOOL_VERSION=%COMPILER_TOOL%%COMPILER_TOOL_VERSION_NUM:~0,3%
 set DOTNETMF_COMPILER=%COMPILER_TOOL_VERSION%
 
+:: GCC version number for comparison in .targets file
+for /f "tokens=1,2 delims=." %%i in ('echo %GNU_VERSION%') do set /a GCC_VERNUM=%%i*10000+%%j*100
+
 IF /I "%COMPILER_TOOL%"=="GCC" (
 IF EXIST "%ARG3%\lib\gcc\arm-none-eabi\%GNU_VERSION%" (
 set ARMINC=%ARG3%\lib\gcc\arm-none-eabi\%GNU_VERSION%\include

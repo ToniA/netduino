@@ -52,7 +52,7 @@ INT32 OneWire::AcquireEx( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
   INT32 retVal = 0; 
 	UINT32 pin = Get__pin(pMngObj); 
-  retVal = owAcquire(pin, "\\\\OneWire\\");
+  retVal = owAcquire(pin, NULL);
   return retVal;
 }
 

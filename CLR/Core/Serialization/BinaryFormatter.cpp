@@ -1267,7 +1267,7 @@ HRESULT CLR_RT_BinaryFormatter::State::AssignAndFixBoxing( CLR_RT_HeapBlock& dst
             else if(src->DataType() == DATATYPE_REFLECTION)
             {
                 const CLR_RT_ReflectionDef_Index* reflex;
-                const CLR_RT_TypeDef_Index* cls;
+                const CLR_RT_TypeDef_Index* cls = NULL;
                 CLR_RT_HeapBlock *pDst = &dst;
 
                 reflex = &(src->ReflectionDataConst());

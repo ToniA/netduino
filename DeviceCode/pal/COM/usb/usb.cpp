@@ -51,7 +51,7 @@ UINT8 USB_LanguageDescriptor[USB_LANGUAGE_DESCRIPTOR_SIZE] =
 
 // This provides storage for the "friendly name" (String 5) if it is specified
 // by the Flash configuration sector
-ADS_PACKED struct GNU_PACKED
+ADS_PACKED struct GNU_PACKED USB_FRIENDLY_NAME
 {
     UINT8 bLength;
     UINT8 bDescriptorType;
