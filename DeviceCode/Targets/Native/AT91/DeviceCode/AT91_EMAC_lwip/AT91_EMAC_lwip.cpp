@@ -218,7 +218,7 @@ err_t AT91_EMAC_LWIP_xmit(struct netif *pNetIf, struct pbuf *pPBuf)
     UINT8 *pDst;
     INT32 len;
 
-    volatile EmacTDescriptor *pTxTd;
+    volatile EmacTDescriptor *pTxTd = NULL;
 
     GLOBAL_LOCK(encIrq);
     

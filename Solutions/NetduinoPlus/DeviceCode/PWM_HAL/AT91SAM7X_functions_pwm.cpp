@@ -84,7 +84,7 @@ BOOL PWM_Uninitialize(PWM_CHANNEL channel)
 BOOL PWM_ApplyConfiguration(PWM_CHANNEL channel, GPIO_PIN pin, UINT32& period, UINT32& duration, PWM_SCALE_FACTOR& scale, BOOL invert)
 {
 	// adjust our period and duration to microseconds if necessary
-	UINT32 periodMs, durationMs;
+	UINT32 periodMs = 0, durationMs = 0;
 	if (scale == PWM_NANOSECONDS)
 	{
 		periodMs = period / 1000;

@@ -1885,7 +1885,7 @@ bool CLR_DBG_Debugger::Debugging_Thread_Get( WP_Message* msg, void* owner )
     CLR_DBG_Debugger*                       dbg  = (CLR_DBG_Debugger*)owner;
     CLR_DBG_Commands::Debugging_Thread_Get* cmd  = (CLR_DBG_Commands::Debugging_Thread_Get*)msg->m_payload;
     CLR_RT_Thread*                          th   = dbg->GetThreadFromPid( cmd->m_pid );
-    CLR_RT_HeapBlock*                       pThread;
+    CLR_RT_HeapBlock*                       pThread = NULL;
     bool fFound = false;
 
     if(th == NULL) return false;

@@ -204,6 +204,10 @@
   <!-- CPP flags -->
   <PropertyGroup>
     <CPP_FLAGS>$(CPP_FLAGS) $(CC_CPP_COMMON_FLAGS) $(ExtraCPPFlags) -Wabi </CPP_FLAGS>
+
+    <!-- Suppress "note: the mangling of 'va_list' has changed in GCC 4.4" -->
+    <CPP_FLAGS Condition="$(COMPILER_TOOL_VERSION_INT)&gt;=40400">$(CPP_FLAGS) -Wno-psabi</CPP_FLAGS>
+
     <CPP_FLAGS Condition="'$(FLAVOR)'=='Debug'">$(CPP_FLAGS) -fno-default-inline</CPP_FLAGS>
   </PropertyGroup>
 

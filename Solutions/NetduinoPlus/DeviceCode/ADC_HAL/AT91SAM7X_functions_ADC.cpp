@@ -128,7 +128,7 @@ UINT32 AD_ADChannels()
 
 GPIO_PIN AD_GetPinForChannel( ANALOG_CHANNEL channel )
 {
-    if ((UINT32)channel >= 0 && (UINT32)channel <= 3)
+    if ((UINT32)channel <= 3)
     {
         // AD0-AD3 (peripheral B on pins PB27-PB30)
         return (UINT32)channel + 59;
