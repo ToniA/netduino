@@ -190,7 +190,11 @@ void __section(SectionForFlashOperations) AT91_TIME_Driver::Sleep_uSec_Loop( UIN
     // overhead cycles required to call this subroutine.
     int iterations = (int)uSec - 14;      // Subtract off call & calculation overhead
 
+#if defined(PLATFORM_ARM_Netduino) || defined(PLATFORM_ARM_NetduinoPlus) || defined(PLATFORM_ARM_NetduinoMini)
+    CYCLE_DELAY_LOOP(iterations);
+#else
     CYCLE_DELAY_LOOP2(iterations);
+#endif
 }
 
 #pragma arm section code
