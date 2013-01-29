@@ -18,6 +18,8 @@
     <TinyCLR_Defines Include="PLATFORM_DEPENDENT_HEAP_SIZE_THRESHOLD=10240" />
     <TinyCLR_Defines Include="PLATFORM_DEPENDENT_HEAP_SIZE_THRESHOLD_UPPER=131072" />
     <TinyCLR_Defines Include="PLATFORM_NO_CLR_TRACE=1" />
+    <!-- Exclude interactive debugging in DeviceCode\cores\arm\Diagnostics\Aborts.cpp -->
+    <TinyCLR_Defines Include="ABORTS_REDUCESIZE=1"/>
   </ItemGroup>
   <Import Project="$(SPOCLIENT)\devicecode\Targets\Native\AT91\AT91SAM7X.settings" />
 </Project>

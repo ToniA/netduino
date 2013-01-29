@@ -16,6 +16,7 @@
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Settings" />
   <Import Project="$(SPOCLIENT)\tools\Targets\Microsoft.SPOT.Build.Targets" />
   <PropertyGroup>
+    <IsSolutionWizardVisible>True</IsSolutionWizardVisible>
     <OutputType>Executable</OutputType>
     <MultipleOutputSections Condition="'$(MEMORY)'=='FLASH'">true</MultipleOutputSections>
     <ExcludeDatRegion>true</ExcludeDatRegion>
@@ -56,13 +57,14 @@
   <Import Project="$(SPOCLIENT)\Framework\Features\PWM.featureproj" />
   <Import Project="$(SPOCLIENT)\Framework\Features\SD.featureproj" />
   <Import Project="$(SPOCLIENT)\Framework\Features\SPI.featureproj" />
+  <Import Project="$(SPOCLIENT)\Framework\Features\OneWire.featureproj" />
   <Import Project="$(SPOCLIENT)\Solutions\NetduinoPlus\DeviceCode\SecretLabs_NETMF_Diagnostics\SecretLabs.NETMF.Diagnostics.featureproj" />
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Interop.Settings" />
   <ItemGroup>
     <DriverLibs Include="MFUpdate_PAL_stub.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\MFUpdate\stubs\dotnetmf.proj" />
   </ItemGroup>
-  <ItemGroup>        
+  <ItemGroup>
      <DriverLibs Include="SecretLabs_NETMF_Diagnostics.$(LIB_EXT)" />
      <RequiredProjects Include="$(SPOCLIENT)\Solutions\NetduinoPlus\DeviceCode\SecretLabs_NETMF_Diagnostics\dotNetMF.proj" />
   </ItemGroup>
@@ -518,6 +520,14 @@
   <ItemGroup>
     <DriverLibs Include="native_double_pal.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Double\dotNetMF.proj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PlatformIndependentLibs Include="SPOT_Hardware_OneWire.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\CLR\Libraries\SPOT_Hardware\SPOT_OneWire\dotNetMF.proj" />
+  </ItemGroup>
+  <ItemGroup>
+    <DriverLibs Include="onewire_pal.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\Solutions\Netduino\DeviceCode\OneWire_PAL\dotNetMF.proj" />
   </ItemGroup>
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Targets" />
 </Project>
