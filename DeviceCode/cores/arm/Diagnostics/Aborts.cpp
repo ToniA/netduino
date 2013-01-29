@@ -9,7 +9,13 @@
 #endif
 //--//
 
-#if !defined(BUILD_RTM)
+#if !defined(ABORTS_REDUCESIZE)
+  #if defined(BUILD_RTM)
+    #define ABORTS_REDUCESIZE
+  #endif
+#endif
+
+#if !defined(ABORTS_REDUCESIZE)
 
 void monitor_debug_printf( const char* format, ... )
 {
@@ -414,7 +420,7 @@ StartMonitorMode:
     }
 }
 
-#endif  // !defined(BUILD_RTM)
+#endif  // !defined(ABORTS_REDUCESIZE)
 
 extern "C"
 {
@@ -423,7 +429,7 @@ void UNDEF_Handler( UINT32* registers, UINT32 sp, UINT32 lr )
 {    
     ASSERT_IRQ_MUST_BE_OFF();
     
-#if !defined(BUILD_RTM)
+#if !defined(ABORTS_REDUCESIZE)
     Verify_RAMConstants((void *) FALSE);
 
     ABORT_HandlerDisplay(registers, sp, lr, 4, "Undef Instr", TRUE);
@@ -431,7 +437,7 @@ void UNDEF_Handler( UINT32* registers, UINT32 sp, UINT32 lr )
     CPU_Halt();
 #else
     CPU_Reset();
-#endif  // !defined(BUILD_RTM)
+#endif  // !defined(ABORTS_REDUCESIZE)
 }
 
 
@@ -439,7 +445,7 @@ void ABORTP_Handler( UINT32* registers, UINT32 sp, UINT32 lr )
 {
     ASSERT_IRQ_MUST_BE_OFF();
 
-#if !defined(BUILD_RTM)
+#if !defined(ABORTS_REDUCESIZE)
     Verify_RAMConstants((void *) FALSE);
 
     ABORT_HandlerDisplay(registers, sp, lr, 4, "ABORT Prefetch", TRUE);
@@ -447,7 +453,7 @@ void ABORTP_Handler( UINT32* registers, UINT32 sp, UINT32 lr )
     CPU_Halt();
 #else
     CPU_Reset();
-#endif  // !defined(BUILD_RTM)
+#endif  // !defined(ABORTS_REDUCESIZE)
 }
 
 
@@ -455,7 +461,7 @@ void ABORTD_Handler( UINT32* registers, UINT32 sp, UINT32 lr )
 {
     ASSERT_IRQ_MUST_BE_OFF();
 
-#if !defined(BUILD_RTM)
+#if !defined(ABORTS_REDUCESIZE)
     Verify_RAMConstants((void *) FALSE);
 
     ABORT_HandlerDisplay(registers, sp, lr, 8, "ABORT Data", TRUE);
@@ -463,7 +469,7 @@ void ABORTD_Handler( UINT32* registers, UINT32 sp, UINT32 lr )
     CPU_Halt();
 #else
     CPU_Reset();
-#endif  // !defined(BUILD_RTM)
+#endif  // !defined(ABORTS_REDUCESIZE)
 }
 
 
@@ -474,7 +480,7 @@ HARD_Breakpoint_Handler(
     UINT32 lr
     )
 {    
-#if !defined(BUILD_RTM)
+#if !defined(ABORTS_REDUCESIZE)
 
     if(1 == ++ABORT_recursion_counter)
     {
@@ -491,10 +497,10 @@ HARD_Breakpoint_Handler(
 
     CPU_Reset();
 
-#endif  // !defined(BUILD_RTM)
+#endif  // !defined(ABORTS_REDUCESIZE)
 }
 
-#if !defined(BUILD_RTM)
+#if !defined(ABORTS_REDUCESIZE)
 
 void NULL_Pointer_Write()
 {
@@ -515,20 +521,20 @@ void NULL_Pointer_Write()
     CPU_Halt();
 }
 
-#endif  // !defined(BUILD_RTM)
+#endif  // !defined(ABORTS_REDUCESIZE)
 
 
 void StackOverflow( UINT32 sp )
 {
     ASSERT_IRQ_MUST_BE_OFF();
 
-#if !defined(BUILD_RTM) && !defined(PLATFORM_ARM_OS_PORT)
+#if !defined(ABORTS_REDUCESIZE) && !defined(PLATFORM_ARM_OS_PORT)
     lcd_printf("\fSTACK OVERFLOW\r\nsp=0x%08x\r\nStackBottom:\r\n0x%08x", sp, (UINT32)&StackBottom);
 
     CPU_Halt();
 #else
     CPU_Reset();
-#endif  // !defined(BUILD_RTM)
+#endif  // !defined(ABORTS_REDUCESIZE)
 }
 
 }
