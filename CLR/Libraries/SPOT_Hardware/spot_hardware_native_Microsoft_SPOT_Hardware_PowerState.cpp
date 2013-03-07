@@ -128,11 +128,11 @@ HRESULT Library_spot_hardware_native_Microsoft_SPOT_Hardware_PowerState::Interna
 
     CLR_RT_ExecutionEngine::ExecutionConstraint_Suspend();
 
-    BOOL fEnabled = Watchdog_GetSetEnabled( FALSE, TRUE );
+    // BOOL fEnabled = Watchdog_GetSetEnabled( FALSE, TRUE ); // Netduino's AT91SAM7X512 watchdog control register is write-once
 
     res = g_CLR_RT_ExecutionEngine.WaitForActivity( sleepLevel, (UINT32)events, timeout_ms );
 
-    Watchdog_GetSetEnabled( fEnabled, TRUE );
+    // Watchdog_GetSetEnabled( fEnabled, TRUE );  // Netduino's AT91SAM7X512 watchdog control register is write-once
 
     CLR_RT_ExecutionEngine::ExecutionConstraint_Resume();
 

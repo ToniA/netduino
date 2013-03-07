@@ -41,7 +41,9 @@ void BootstrapCode_Clocks()
 void BootstrapCode_ARM()
 {
     // Disable Watchdog
-    *((volatile UINT32*) 0xFFFFFD44) = 0x8000;
+
+    // AT91_WATCHDOG &wtdg = AT91::WTDG();
+    // wtdg.WDT_MR = AT91_WATCHDOG::WMR_WDDIS;
 
     // Embedded Flash Controllers 
     AT91_BL_EFC &efc0= AT91_BL_EFC::BL_EFC(0);

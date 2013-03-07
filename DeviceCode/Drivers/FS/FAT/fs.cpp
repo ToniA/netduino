@@ -54,11 +54,11 @@ BOOL FAT_FS_Driver::UnInitializeVolume( const VOLUME_ID* volume )
 
 HRESULT FAT_FS_Driver::Format( const VOLUME_ID* volume, LPCSTR volumeLabel, UINT32 parameters )
 {
-    ::Watchdog_GetSetEnabled( FALSE, TRUE );
+    // ::Watchdog_GetSetEnabled( FALSE, TRUE );  // Netduino's AT91SAM7X512 watchdog control register is write-once
 
     HRESULT hr = FAT_LogicDisk::Format( volume, volumeLabel, parameters );
 
-    ::Watchdog_GetSetEnabled( TRUE, TRUE );
+    // ::Watchdog_GetSetEnabled( TRUE, TRUE );  // Netduino's AT91SAM7X512 watchdog control register is write-once
 
     return hr;
 }

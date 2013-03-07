@@ -338,7 +338,7 @@ void CLR_RT_ExecutionEngine::Reboot( bool fHard )
 {
     NATIVE_PROFILE_CLR_CORE();
     
-    ::Watchdog_GetSetEnabled( FALSE, TRUE );
+    // ::Watchdog_GetSetEnabled( FALSE, TRUE ); // Netduino's AT91SAM7X512 watchdog control register is write-once
 
     g_CLR_RT_Persistence_Manager.Flush();
     g_CLR_RT_Persistence_Manager.m_state = CLR_RT_Persistence_Manager::STATE_FlushNextObject;
@@ -3664,9 +3664,9 @@ CLR_UINT32 CLR_RT_ExecutionEngine::WaitSystemEvents( CLR_UINT32 powerLevel, CLR_
     }
 #endif
 
-    ::Watchdog_GetSetEnabled( FALSE, TRUE );
+    // ::Watchdog_GetSetEnabled( FALSE, TRUE ); // Netduino's AT91SAM7X512 watchdog control register is write-once
     res = ::Events_WaitForEvents( powerLevel, events, timeout );
-    ::Watchdog_GetSetEnabled( TRUE, TRUE );
+    // ::Watchdog_GetSetEnabled( TRUE, TRUE ); // Netduino's AT91SAM7X512 watchdog control register is write-once
 
 
 #if defined(TINYCLR_TRACE_SYSTEMEVENTWAIT)

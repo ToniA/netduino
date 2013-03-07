@@ -175,7 +175,7 @@ CK_RV PKCS11_Keys_OpenSSL::GenerateKeyPair(Cryptoki_Session_Context* pSessionCtx
     OBJECT_DATA*  pData = NULL;
     KEY_DATA*     pKey  = NULL;
 
-    Watchdog_GetSetEnabled( FALSE, TRUE );
+    // Watchdog_GetSetEnabled( FALSE, TRUE );  // Netduino's AT91SAM7X512 watchdog control register is write-once
     
     switch(pMechanism->mechanism)
     {
@@ -306,7 +306,7 @@ CK_RV PKCS11_Keys_OpenSSL::GenerateKeyPair(Cryptoki_Session_Context* pSessionCtx
 
     OPENSSL_CLEANUP();
 
-    Watchdog_GetSetEnabled( TRUE, TRUE );    
+    // Watchdog_GetSetEnabled( TRUE, TRUE ); // Netduino's AT91SAM7X512 watchdog control register is write-once
 
     if(ctx != NULL) EVP_PKEY_CTX_free(ctx);
 

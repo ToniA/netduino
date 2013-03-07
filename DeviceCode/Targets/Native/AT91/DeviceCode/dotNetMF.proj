@@ -16,6 +16,7 @@
     <SubDirectories Include="AT91_SAM"/>
     <SubDirectories Include="AT91_SPI"/>
     <SubDirectories Include="AT91_USB"/>
+    <SubDirectories Include="AT91_WATCHDOG"/>
   </ItemGroup>
 
   <ItemGroup Condition="'$(TARGETPROCESSOR)'=='AT91SAM9261'">

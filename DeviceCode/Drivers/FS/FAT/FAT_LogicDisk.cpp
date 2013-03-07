@@ -1343,7 +1343,7 @@ void FAT_LogicDisk::PopulateFreeCount()
     UINT32 c = 0;
     UINT32 lastIndex = m_totalClusterCount + CLUSTER_START - 1;
 
-    ::Watchdog_GetSetEnabled( FALSE, TRUE );
+    // ::Watchdog_GetSetEnabled( FALSE, TRUE );  // Netduino's AT91SAM7X512 watchdog control register is write-once
 
     while(TRUE)
     {
@@ -1352,7 +1352,7 @@ void FAT_LogicDisk::PopulateFreeCount()
             m_freeCount = 0xFFFFFFFF;
             m_nextFree = 0;
 
-            ::Watchdog_GetSetEnabled( TRUE, TRUE );
+            // ::Watchdog_GetSetEnabled( TRUE, TRUE );  // Netduino's AT91SAM7X512 watchdog control register is write-once
             return;
         }
 
@@ -1376,7 +1376,7 @@ void FAT_LogicDisk::PopulateFreeCount()
 
                 if(c == lastIndex)
                 {
-                    ::Watchdog_GetSetEnabled( TRUE, TRUE );
+                    // ::Watchdog_GetSetEnabled( TRUE, TRUE ); // Netduino's AT91SAM7X512 watchdog control register is write-once
                     return;
                 }
             }
@@ -1399,7 +1399,7 @@ void FAT_LogicDisk::PopulateFreeCount()
 
                 if(c == lastIndex)
                 {
-                    ::Watchdog_GetSetEnabled( TRUE, TRUE );
+                    // ::Watchdog_GetSetEnabled( TRUE, TRUE ); // Netduino's AT91SAM7X512 watchdog control register is write-once
                     return;
                 }
             }

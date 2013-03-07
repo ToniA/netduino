@@ -140,7 +140,7 @@ void __section(SectionForFlashOperations)  Native_Profiler_Dump()
 
     // clear_watchdog
     // if we do not disable the watchdog, it can be called while we dump data
-    Watchdog_GetSetEnabled( FALSE, TRUE );
+    // Watchdog_GetSetEnabled( FALSE, TRUE ); // Netduino's AT91SAM7X512 watchdog control register is write-once
     
     // flush existing characters
     USART_Flush( ConvertCOM_ComPort(USART_DEFAULT_PORT) );
@@ -156,7 +156,7 @@ void __section(SectionForFlashOperations)  Native_Profiler_Dump()
     } while(size);
     // flush new characters
     USART_Flush( ConvertCOM_ComPort(USART_DEFAULT_PORT) );
-    Watchdog_GetSetEnabled( TRUE, TRUE );
+    // Watchdog_GetSetEnabled( TRUE, TRUE );
     time2 = Native_Profiler_TimeInMicroseconds();
     s_native_profiler.initTime += (time2 - time1);
     s_native_profiler.position = &ProfilerBufferBegin;
@@ -174,7 +174,7 @@ void __section(SectionForFlashOperations)  Native_Profiler_WriteToCOM(void *buff
     USART_Initialize( ConvertCOM_ComPort(USART_DEFAULT_PORT), HalSystemConfig.USART_DefaultBaudRate, USART_PARITY_NONE, 8, USART_STOP_BITS_ONE, USART_FLOW_NONE );
 
     // disable watchdog
-    Watchdog_GetSetEnabled( FALSE, TRUE );
+    // Watchdog_GetSetEnabled( FALSE, TRUE ); // Netduino's AT91SAM7X512 watchdog control register is write-once
     
     // flush existing characters
     USART_Flush( ConvertCOM_ComPort(USART_DEFAULT_PORT) );
@@ -190,7 +190,7 @@ void __section(SectionForFlashOperations)  Native_Profiler_WriteToCOM(void *buff
 
     // flush new characters
     USART_Flush( ConvertCOM_ComPort(USART_DEFAULT_PORT) );
-    Watchdog_GetSetEnabled( TRUE, TRUE );
+    // Watchdog_GetSetEnabled( TRUE, TRUE ); // Netduino's AT91SAM7X512 watchdog control register is write-once
     
     time2 = Native_Profiler_TimeInMicroseconds();
 

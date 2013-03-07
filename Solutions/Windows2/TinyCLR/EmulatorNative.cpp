@@ -96,7 +96,7 @@ HRESULT Settings::System_Start()
     // 
     Watchdog_GetSetTimeout ( WATCHDOG_TIMEOUT , TRUE );
     Watchdog_GetSetBehavior( WATCHDOG_BEHAVIOR, TRUE );
-    Watchdog_GetSetEnabled ( WATCHDOG_ENABLE  , TRUE );
+    //Watchdog_GetSetEnabled ( WATCHDOG_ENABLE  , TRUE ); // Netduino's AT91SAM7X512 watchdog control register is write-once
     
     TimeService_Initialize();
 
