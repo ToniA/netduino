@@ -86,6 +86,7 @@ bool WaitForTinyBooterUpload( INT32 &timeout_ms )
     timeout_ms      = 0;
     enterBooterMode = false;
     Events_WaitForEvents(0,100);
+
     if(!CPU_GPIO_EnableInputPin( AT91_GPIO_Driver::PA29, FALSE, NULL, GPIO_INT_NONE, RESISTOR_PULLUP ))
     {
         ASSERT(FALSE);
@@ -93,18 +94,34 @@ bool WaitForTinyBooterUpload( INT32 &timeout_ms )
     if(CPU_GPIO_GetPinState( AT91_GPIO_Driver::PA29 ))
     {                 
         // Turn off the internal LED as sign for the watchdog to be disabled        
-       CPU_GPIO_EnableOutputPin(AT91_GPIO_Driver::PB23, false);
-       CPU_GPIO_SetPinState(AT91_GPIO_Driver::PB23, false);
+        CPU_GPIO_EnableOutputPin(AT91_GPIO_Driver::PB23, false);
+        CPU_GPIO_SetPinState(AT91_GPIO_Driver::PB23, false);
 
-        // disable watchdog
-       *((volatile UINT32*) 0xFFFFFD44) = 0x8000;
-
-        // user override, so let's stay forever
+        // Disable the watchdog
         *((volatile UINT32*) 0xFFFFFD44) = 0x8000;
-                    
-        timeout_ms = -1;
-        enterBooterMode = true;
+
+        // Sleep 0.5 seconds
+        HAL_Time_Sleep_MicroSeconds(500000);
+
+        // If the button is still held down, go to firmware upload mode
+        // Blink as a signal for that
+
+        if(CPU_GPIO_GetPinState( AT91_GPIO_Driver::PA29 ))
+        {
+            // Blink the internal led 10 times
+            for (int i = 0; i < 10; i++) {
+                CPU_GPIO_SetPinState(AT91_GPIO_Driver::PB23, false);
+                HAL_Time_Sleep_MicroSeconds(30000);
+                CPU_GPIO_SetPinState(AT91_GPIO_Driver::PB23, true);
+                HAL_Time_Sleep_MicroSeconds(30000);
+            }
+
+            // User override, so let's stay forever waiting for firmware upload
+            timeout_ms = -1;
+            enterBooterMode = true;
+        }
     }
+
 #endif
 
     return enterBooterMode;
